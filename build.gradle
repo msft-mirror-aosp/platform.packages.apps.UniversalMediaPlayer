@@ -27,8 +27,10 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        maven { url 'https://maven.google.com' }
         google()
+
+        // TODO: Remove before releasing and after stable media2 is released
+        maven { url "$rootDir/../../../prebuilts/sdk/current/androidx/m2repository" }
     }
 }
 

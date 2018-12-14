@@ -23,15 +23,23 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
+import com.android.pump.R;
 import com.android.pump.db.Video;
+import com.android.pump.util.Clog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media2.UriMediaItem;
+import androidx.media2.widget.VideoView;
 
 @UiThread
 public class VideoPlayerActivity extends AppCompatActivity {
+    private static final String TAG = Clog.tag(VideoPlayerActivity.class);
+
+    private VideoView mVideoView;
+
     public static void start(@NonNull Context context, @NonNull Video video) {
         // TODO Find a better URI (video.getUri()?)
         Uri uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
@@ -45,5 +53,21 @@ public class VideoPlayerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_video_player);
+        mVideoView = findViewById(R.id.video_view);
+
+        handleIntent();
+    }
+
+    private void handleIntent() {
+        Intent intent = getIntent();
+        Uri uri = intent.getData();
+        if (uri == null) {
+            Clog.e(TAG, "The intent has no uri. Finishing activity...");
+            finish();
+            return;
+        }
+        UriMediaItem mediaItem = new UriMediaItem.Builder(this, uri).build();
+        mVideoView.setMediaItem(mediaItem);
     }
 }
