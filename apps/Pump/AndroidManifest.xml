@@ -50,7 +50,9 @@
 
         <activity android:name=".activity.OtherDetailsActivity"/>
 
-        <activity android:name=".activity.AudioPlayerActivity">
+        <activity
+            android:name=".activity.AudioPlayerActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -58,7 +60,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.VideoPlayerActivity">
+        <activity
+            android:name=".activity.VideoPlayerActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
