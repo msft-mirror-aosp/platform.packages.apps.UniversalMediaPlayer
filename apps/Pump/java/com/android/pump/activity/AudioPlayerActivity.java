@@ -19,14 +19,9 @@ package com.android.pump.activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-
-import com.android.pump.R;
-import com.android.pump.db.Audio;
-import com.android.pump.util.Clog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +29,10 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media2.UriMediaItem;
 import androidx.media2.widget.VideoView;
+
+import com.android.pump.R;
+import com.android.pump.db.Audio;
+import com.android.pump.util.Clog;
 
 @UiThread
 public class AudioPlayerActivity extends AppCompatActivity {
@@ -52,15 +51,18 @@ public class AudioPlayerActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_player);
         mVideoView = findViewById(R.id.video_view);
+
+        handleIntent();
+    }
+
+    @Override
+    protected void onNewIntent(@Nullable Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
 
         handleIntent();
     }
