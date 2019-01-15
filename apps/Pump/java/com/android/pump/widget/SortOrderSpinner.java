@@ -71,7 +71,7 @@ public class SortOrderSpinner extends AppCompatSpinner {
     }
 
     private void initialize() {
-        String options[] = {
+        String[] options = {
             "name",
             "modified"
         };
