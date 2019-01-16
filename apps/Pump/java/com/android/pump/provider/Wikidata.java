@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -72,7 +73,7 @@ public final class Wikidata {
     private static List<String> getSearchResults(String search, int maxResults) throws IOException {
         String uri = getSearchUri(search, maxResults);
         Clog.i(TAG, uri);
-        String result = new String(Http.get(uri), "utf-8");
+        String result = new String(Http.get(uri), StandardCharsets.UTF_8);
         Clog.i(TAG, result);
         try {
             Object root = new JSONTokener(result).nextValue();
@@ -94,7 +95,7 @@ public final class Wikidata {
         /*
         String uri = getContentUri(ids);
         Clog.i(TAG, uri);
-        String result = new String(Http.get(uri), "utf-8");
+        String result = new String(Http.get(uri), StandardCharsets.UTF_8);
         //Clog.i(TAG, result);
         try {
             Object root = new JSONTokener(result).nextValue();
@@ -111,7 +112,7 @@ public final class Wikidata {
     private static void getSparqlForResults(List<String> ids) throws IOException {
         String uri = getSparqlUri(ids);
         Clog.i(TAG, uri);
-        String result = new String(Http.get(uri), "utf-8");
+        String result = new String(Http.get(uri), StandardCharsets.UTF_8);
         Clog.i(TAG, result);
         try {
             Object root = new JSONTokener(result).nextValue();

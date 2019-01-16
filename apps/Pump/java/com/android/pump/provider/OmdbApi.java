@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
@@ -128,7 +129,8 @@ public final class OmdbApi implements DataProvider {
     }
 
     private static @NonNull Object getContent(@NonNull Uri uri) throws IOException, JSONException {
-        return new JSONTokener(new String(Http.get(uri.toString()), "utf-8")).nextValue();
+        return new JSONTokener(new String(Http.get(uri.toString()), StandardCharsets.UTF_8))
+                .nextValue();
     }
 
     private static @NonNull Uri getPosterUri(@NonNull String imdbId) {

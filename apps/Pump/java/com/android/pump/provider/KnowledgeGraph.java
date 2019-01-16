@@ -59,6 +59,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.regex.Pattern;
@@ -171,7 +172,8 @@ public class Freebase extends LruCache<String, Freebase.FreebaseResult> {
             InputStream inputStream;
             try {
                 inputStream = new URL(getTopicUri(mMid)).openStream();
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                InputStreamReader inputStreamReader =
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 parseFreebaseResult(new JsonReader(bufferedReader));
                 String imageUri = mImageMid == null ? null : getImageUri(mImageMid);
