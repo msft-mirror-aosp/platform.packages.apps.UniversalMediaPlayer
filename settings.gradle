@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-include(':Pump')
-project(':Pump').projectDir = new File(rootDir, 'apps/Pump')
+// include(':Pump')
+// project(':Pump').projectDir = new File(rootDir, 'apps/Pump')
 
 // apply from: '../../../../frameworks/support/include-support-library.gradle'
