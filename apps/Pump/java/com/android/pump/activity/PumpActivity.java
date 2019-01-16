@@ -60,23 +60,23 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         android.Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    private static final Page HOME_PAGES[] = {
+    private static final Page[] HOME_PAGES = {
         new Page(HomeFragment::newInstance, "Home")
     };
-    private static final Page VIDEO_PAGES[] = {
+    private static final Page[] VIDEO_PAGES = {
         new Page(MovieFragment::newInstance, "Movies"),
         new Page(SeriesFragment::newInstance, "TV Shows"),
         new Page(OtherFragment::newInstance, "Personal"),
         new Page(HomeFragment::newInstance, "All videos")
     };
-    private static final Page AUDIO_PAGES[] = {
+    private static final Page[] AUDIO_PAGES = {
         new Page(AudioFragment::newInstance, "All audios"),
         new Page(PlaylistFragment::newInstance, "Playlists"),
         new Page(AlbumFragment::newInstance, "Albums"),
         new Page(GenreFragment::newInstance, "Genres"),
         new Page(ArtistFragment::newInstance, "Artists")
     };
-    private static final Page FAVORITE_PAGES[] = {
+    private static final Page[] FAVORITE_PAGES = {
         new Page(HomeFragment::newInstance, "Videos"),
         new Page(HomeFragment::newInstance, "Audios")
     };
@@ -148,7 +148,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         if (requestCode == REQUIRED_PERMISSIONS_REQUEST_CODE) {
             boolean granted = true;
@@ -194,7 +194,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         return false;
     }
 
-    private void selectPages(@NonNull CharSequence title, @NonNull Page pages[]) {
+    private void selectPages(@NonNull CharSequence title, @NonNull Page[] pages) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(title);
@@ -206,13 +206,13 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     }
 
     private static class ActivityPagerAdapter extends FragmentPagerAdapter {
-        private Page mPages[];
+        private Page[] mPages;
 
         private ActivityPagerAdapter(@NonNull FragmentManager fm) {
             super(fm);
         }
 
-        private void setPages(@NonNull Page pages[]) {
+        private void setPages(@NonNull Page[] pages) {
             mPages = pages;
             notifyDataSetChanged();
         }
