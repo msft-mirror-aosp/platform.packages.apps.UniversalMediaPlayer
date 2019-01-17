@@ -24,16 +24,47 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        jcenter()
-        google()
+apply plugin: 'com.android.application'
 
-        // TODO: Remove before releasing and after stable media2 is released
-        maven { url "$rootDir/../../../prebuilts/sdk/current/androidx/m2repository" }
+android {
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
+    defaultConfig {
+        minSdkVersion 19 // TODO: Lower to 16 after media2-widget supports 16
+        targetSdkVersion 28
+        versionCode 1
+        versionName '1.0'
+        vectorDrawables.useSupportLibrary = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['java']
+        main.res.srcDirs = ['res']
+    }
+    compileOptions {
+        targetCompatibility 8
+        sourceCompatibility 8
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+repositories {
+    jcenter()
+    google()
+
+    // TODO: Remove before releasing and after stable media2 is released
+    maven { url "$rootDir/../../../prebuilts/sdk/current/androidx/m2repository" }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
+    implementation 'androidx.media2:media2-widget:1.0.0-alpha06'
+    implementation 'androidx.mediarouter:mediarouter:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
 }

@@ -1,8 +1,8 @@
 *~
-*.idea
-*.iml
-*build/
 \#*#
-/local.properties
+/.gradle
+/.idea
+/UniversalMediaPlayer.iml
+/build
 /captures
-.gradle
+/local.properties
