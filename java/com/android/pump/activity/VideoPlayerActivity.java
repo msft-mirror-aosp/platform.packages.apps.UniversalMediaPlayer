@@ -27,10 +27,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media2.MediaController;
+import androidx.media2.MediaItem;
+import androidx.media2.SessionToken;
 import androidx.media2.UriMediaItem;
 import androidx.media2.widget.VideoView;
 
 import com.android.pump.R;
+import com.android.pump.concurrent.Executors;
 import com.android.pump.db.Video;
 import com.android.pump.util.Clog;
 
@@ -39,6 +43,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
     private static final String TAG = Clog.tag(VideoPlayerActivity.class);
 
     private VideoView mVideoView;
+    private MediaController mMediaController;
 
     public static void start(@NonNull Context context, @NonNull Video video) {
         // TODO Find a better URI (video.getUri()?)
@@ -60,6 +65,23 @@ public class VideoPlayerActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onAttachedToWindow() {
+        if (mMediaController == null) {
+            SessionToken token = mVideoView.getSessionToken();
+            mMediaController = new MediaController(this, token, Executors.uiThreadExecutor(),
+                    new ControllerCallback());
+        }
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        if (mMediaController != null) {
+            mMediaController.close();
+            mMediaController = null;
+        }
+    }
+
+    @Override
     protected void onNewIntent(@Nullable Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
@@ -77,5 +99,13 @@ public class VideoPlayerActivity extends AppCompatActivity {
         }
         UriMediaItem mediaItem = new UriMediaItem.Builder(this, uri).build();
         mVideoView.setMediaItem(mediaItem);
+    }
+
+    private class ControllerCallback extends MediaController.ControllerCallback {
+        @Override
+        public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                @Nullable MediaItem item) {
+            controller.play();
+        }
     }
 }
