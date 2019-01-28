@@ -29,6 +29,7 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media2.MediaController;
 import androidx.media2.MediaItem;
+import androidx.media2.SessionPlayer;
 import androidx.media2.SessionToken;
 import androidx.media2.UriMediaItem;
 import androidx.media2.widget.VideoView;
@@ -41,9 +42,11 @@ import com.android.pump.util.Clog;
 @UiThread
 public class VideoPlayerActivity extends AppCompatActivity {
     private static final String TAG = Clog.tag(VideoPlayerActivity.class);
+    private static final String SAVED_POSITION_KEY = "SavedPosition";
 
     private VideoView mVideoView;
     private MediaController mMediaController;
+    private long mSavedPosition = SessionPlayer.UNKNOWN_TIME;
 
     public static void start(@NonNull Context context, @NonNull Video video) {
         // TODO Find a better URI (video.getUri()?)
@@ -61,7 +64,21 @@ public class VideoPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_player);
         mVideoView = findViewById(R.id.video_view);
 
+        if (savedInstanceState != null) {
+            mSavedPosition = savedInstanceState.getLong(SAVED_POSITION_KEY,
+                    SessionPlayer.UNKNOWN_TIME);
+        }
+
         handleIntent();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        if (mMediaController != null) {
+            outState.putLong(SAVED_POSITION_KEY, mMediaController.getCurrentPosition());
+        }
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -105,6 +122,10 @@ public class VideoPlayerActivity extends AppCompatActivity {
         @Override
         public void onCurrentMediaItemChanged(@NonNull MediaController controller,
                 @Nullable MediaItem item) {
+            if (mSavedPosition != SessionPlayer.UNKNOWN_TIME) {
+                controller.seekTo(mSavedPosition);
+                mSavedPosition = SessionPlayer.UNKNOWN_TIME;
+            }
             controller.play();
         }
     }
