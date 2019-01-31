@@ -27,7 +27,7 @@ public class Movie extends Video {
     private final String mTitle;
     private final int mYear;
 
-    // TODO Lock mutable fields to ensure consistent updates
+    // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private Uri mThumbnailUri;
     private Uri mPosterUri;
     private String mSynopsis;

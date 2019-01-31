@@ -70,11 +70,11 @@
             </intent-filter>
         </activity>
 
-        <!-- TODO Handle music app intents;
+        <!-- TODO(b/123711288) Handle music app intents;
                   https://developer.android.com/reference/android/content/Intent.html#CATEGORY_APP_MUSIC
                   https://developer.android.com/reference/android/provider/MediaStore.html#INTENT_ACTION_MUSIC_PLAYER -->
 
-        <!-- TODO Handle play from search;
+        <!-- TODO(b/123711069) Handle play from search;
                   https://developer.android.com/guide/components/intents-common#PlaySearch
                   https://developer.android.com/reference/android/provider/MediaStore.html#INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH
                   https://developer.android.com/reference/android/provider/MediaStore#INTENT_ACTION_MEDIA_SEARCH

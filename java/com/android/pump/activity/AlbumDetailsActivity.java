@@ -36,7 +36,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
 
     public static void start(@NonNull Context context, @NonNull Album album) {
         Intent intent = new Intent(context, AlbumDetailsActivity.class);
-        // TODO Pass URI instead
+        // TODO(b/123704452) Pass URI instead
         intent.putExtra("id", album.getId()); // TODO Add constant key
         context.startActivity(intent);
     }

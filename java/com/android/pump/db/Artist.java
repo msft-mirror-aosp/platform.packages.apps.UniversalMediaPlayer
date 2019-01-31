@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
 public class Artist {
     private final long mId;
 
-    // TODO Lock mutable fields to ensure consistent updates
+    // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private String mName;
     private final List<Album> mAlbums = new ArrayList<>();
     private boolean mLoaded;

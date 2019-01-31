@@ -28,7 +28,7 @@ public class Audio {
     private final Uri mUri;
     private final String mMimeType;
 
-    // TODO Lock mutable fields to ensure consistent updates
+    // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private String mTitle;
     private Artist mArtist;
     private Album mAlbum;

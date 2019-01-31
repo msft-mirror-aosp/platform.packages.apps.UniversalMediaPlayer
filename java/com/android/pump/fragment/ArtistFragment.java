@@ -65,7 +65,7 @@ public class ArtistFragment extends Fragment {
         gridLayoutManager.setSpanSizeLookup(
                 new HeaderSpanSizeLookup(gridLayoutManager.getSpanCount()));
 
-        // TODO Enable view caching
+        // TODO(b/123707260) Enable view caching
         //mRecyclerView.setItemViewCacheSize(0);
         //mRecyclerView.setRecycledViewPool(Globals.getRecycledViewPool(requireContext()));
         return view;
@@ -74,7 +74,7 @@ public class ArtistFragment extends Fragment {
     private static class ArtistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             implements MediaDb.UpdateCallback {
         private final MediaDb mMediaDb;
-        private final List<Artist> mArtists; // TODO Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
+        private final List<Artist> mArtists; // TODO(b/123710968) Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
 
         private ArtistAdapter(@NonNull Context context) {
             setHasStableIds(true);
