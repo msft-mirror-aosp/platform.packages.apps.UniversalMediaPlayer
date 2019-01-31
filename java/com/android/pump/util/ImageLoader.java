@@ -138,8 +138,7 @@ public class ImageLoader {
                         mOrientationCache.put(mUri, bitmap);
                     }
                     callbacks = new ArraySet<>(mCallbacks);
-                    loadCallbacks = mLoadCallbacks.get(mUri);
-                    mLoadCallbacks.remove(mUri);
+                    loadCallbacks = mLoadCallbacks.remove(mUri);
                 }
                 for (Map.Entry<Executor, Callback> callback : callbacks) {
                     callback.getKey().execute(() ->
