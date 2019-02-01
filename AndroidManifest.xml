@@ -56,6 +56,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+                <!-- TODO(b/123768134) Investigate which schemes, mime types, etc to support -->
                 <data android:scheme="content"/>
                 <data android:mimeType="audio/*"/>
             </intent-filter>
@@ -67,6 +68,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+                <!-- TODO(b/123768100) Investigate which schemes, mime types, etc to support -->
                 <data android:scheme="content"/>
                 <data android:mimeType="video/*"/>
             </intent-filter>
