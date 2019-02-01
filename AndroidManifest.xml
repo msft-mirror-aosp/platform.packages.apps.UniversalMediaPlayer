@@ -28,6 +28,7 @@
         android:label="Personal Universal MediaPlayer"
         android:theme="@style/PumpTheme"
         android:icon="@null"
+        android:supportsRtl="true"
         android:allowBackup="false"
         android:appCategory="video">
 
