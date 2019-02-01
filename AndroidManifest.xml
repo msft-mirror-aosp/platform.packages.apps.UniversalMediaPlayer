@@ -26,7 +26,8 @@
     <application
         android:name=".app.PumpApplication"
         android:label="Personal Universal MediaPlayer"
-        android:theme="@style/PumpTheme">
+        android:theme="@style/PumpTheme"
+        android:appCategory="video">
 
         <activity android:name=".activity.PumpActivity">
             <intent-filter>
