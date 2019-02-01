@@ -27,6 +27,7 @@
         android:name=".app.PumpApplication"
         android:label="Personal Universal MediaPlayer"
         android:theme="@style/PumpTheme"
+        android:icon="@null"
         android:allowBackup="false"
         android:appCategory="video">
 
