@@ -45,7 +45,7 @@ public class OtherDetailsActivity extends AppCompatActivity implements MediaDb.U
 
     public static void start(@NonNull Context context, @NonNull Other other) {
         Intent intent = new Intent(context, OtherDetailsActivity.class);
-        // TODO Pass URI instead
+        // TODO(b/123704452) Pass URI instead
         intent.putExtra("id", other.getId()); // TODO Add constant key
         context.startActivity(intent);
     }
@@ -141,7 +141,7 @@ public class OtherDetailsActivity extends AppCompatActivity implements MediaDb.U
         StringBuilder attributes = new StringBuilder();
         if (mOther.hasDuration()) {
             long dur = mOther.getDuration();
-            // TODO Move to string resource
+            // TODO(b/123706525) Move to string resource
             String duration = String.format("%dm %ds",
                     TimeUnit.MILLISECONDS.toMinutes(dur),
                     TimeUnit.MILLISECONDS.toSeconds(dur) -
@@ -150,13 +150,13 @@ public class OtherDetailsActivity extends AppCompatActivity implements MediaDb.U
             attributes.append('\n');
         }
         if (mOther.hasDateTaken()) {
-            // TODO Better formatting
+            // TODO(b/123707011) Better formatting
             String date = DateFormat.getLongDateFormat(this).format(new Date(mOther.getDateTaken()));
             attributes.append(date);
             attributes.append('\n');
         }
         if (mOther.hasLatLong()) {
-            // TODO Use Geocoder; https://developer.android.com/training/location/display-address
+            // TODO(b/123706523) Decode GPS coordinates
             double latitude = mOther.getLatitude();
             double longitude = mOther.getLongitude();
             String latlong = String.format("%f %f", latitude, longitude);

@@ -24,7 +24,7 @@ import androidx.annotation.Nullable;
 
 @AnyThread
 public class Other extends Video {
-    // TODO Lock mutable fields to ensure consistent updates
+    // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private String mTitle;
     private long mDuration;
     private long mDateTaken;

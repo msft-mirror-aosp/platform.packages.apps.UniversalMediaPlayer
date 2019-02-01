@@ -67,7 +67,7 @@ public class SeriesFragment extends Fragment {
 
         ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
-        // TODO Enable view caching
+        // TODO(b/123707260) Enable view caching
         //mRecyclerView.setItemViewCacheSize(0);
         //mRecyclerView.setRecycledViewPool(Globals.getRecycledViewPool(requireContext()));
         return view;
@@ -76,7 +76,7 @@ public class SeriesFragment extends Fragment {
     private static class SeriesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             implements MediaDb.UpdateCallback {
         private final MediaDb mMediaDb;
-        private final List<Series> mSeries; // TODO Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
+        private final List<Series> mSeries; // TODO(b/123710968) Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
 
         private SeriesAdapter(@NonNull Context context) {
             // TODO setHasStableIds(true);

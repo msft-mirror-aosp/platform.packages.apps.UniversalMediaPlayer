@@ -31,7 +31,7 @@ public class Series {
     private final String mTitle;
     private final int mYear;
 
-    // TODO Lock mutable fields to ensure consistent updates
+    // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private Uri mPosterUri;
     private final List<Episode> mEpisodes = new ArrayList<>();
     private boolean mLoaded;

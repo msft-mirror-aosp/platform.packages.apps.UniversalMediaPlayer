@@ -61,7 +61,7 @@ public class ImageLoader {
     }
 
     public void addCallback(@NonNull Callback callback, @NonNull Executor executor) {
-        synchronized (this) { // TODO other lock
+        synchronized (this) { // TODO(b/123708613) other lock
             if (!mCallbacks.add(new SimpleEntry<>(executor, callback))) {
                 throw new IllegalArgumentException("Callback " + callback + " already added");
             }
@@ -73,7 +73,7 @@ public class ImageLoader {
     }
 
     public void removeCallback(@NonNull Callback callback, @NonNull Executor executor) {
-        synchronized (this) { // TODO other lock
+        synchronized (this) { // TODO(b/123708613) other lock
             if (!mCallbacks.remove(new SimpleEntry<>(executor, callback))) {
                 throw new IllegalArgumentException("Callback " + callback + " not found");
             }
@@ -88,7 +88,7 @@ public class ImageLoader {
             @NonNull Executor executor) {
         Bitmap bitmap;
         Runnable loader = null;
-        synchronized (this) { // TODO other lock
+        synchronized (this) { // TODO(b/123708613) other lock
             bitmap = mBitmapCache.get(uri);
             if (bitmap == null) {
                 List<Map.Entry<Executor, Callback>> callbacks = mLoadCallbacks.get(uri);
@@ -132,7 +132,7 @@ public class ImageLoader {
                 Bitmap bitmap = decodeBitmapFromByteArray(data);
                 Set<Map.Entry<Executor, Callback>> callbacks;
                 List<Map.Entry<Executor, Callback>> loadCallbacks;
-                synchronized (ImageLoader.this) { // TODO proper lock
+                synchronized (ImageLoader.this) { // TODO(b/123708613) proper lock
                     if (bitmap != null) {
                         mBitmapCache.put(mUri, bitmap);
                         mOrientationCache.put(mUri, bitmap);
@@ -150,7 +150,7 @@ public class ImageLoader {
                 }
             } catch (IOException | OutOfMemoryError e) {
                 Clog.e(TAG, "Failed to load image " + mUri, e);
-                // TODO remove from mLoadCallbacks
+                // TODO(b/123708676) remove from mLoadCallbacks
             }
         }
 
@@ -161,7 +161,7 @@ public class ImageLoader {
             BitmapFactory.decodeByteArray(data, 0, data.length, options);
 
             options.inJustDecodeBounds = false;
-            options.inSampleSize = 1; // TODO add scaling
+            options.inSampleSize = 1; // TODO(b/123708796) add scaling
             return BitmapFactory.decodeByteArray(data, 0, data.length, options);
         }
     }

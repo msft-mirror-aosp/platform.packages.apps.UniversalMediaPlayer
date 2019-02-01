@@ -49,7 +49,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
     private long mSavedPosition = SessionPlayer.UNKNOWN_TIME;
 
     public static void start(@NonNull Context context, @NonNull Video video) {
-        // TODO Find a better URI (video.getUri()?)
+        // TODO(b/123703220) Find a better URI (video.getUri()?)
         Uri uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                 video.getId());
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);

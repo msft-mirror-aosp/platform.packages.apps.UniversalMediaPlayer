@@ -36,7 +36,7 @@ public class SeriesDetailsActivity extends AppCompatActivity {
 
     public static void start(@NonNull Context context, @NonNull Series series) {
         Intent intent = new Intent(context, SeriesDetailsActivity.class);
-        // TODO Pass URI instead
+        // TODO(b/123704452) Pass URI instead
         intent.putExtra("title", series.getTitle()); // TODO Add constant key
         if (series.hasYear()) {
             intent.putExtra("year", series.getYear()); // TODO Add constant key

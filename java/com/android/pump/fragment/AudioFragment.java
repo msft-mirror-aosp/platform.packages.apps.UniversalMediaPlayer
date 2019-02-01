@@ -56,7 +56,7 @@ public class AudioFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setAdapter(new AudioAdapter(requireContext()));
 
-        // TODO Enable view caching
+        // TODO(b/123707260) Enable view caching
         //mRecyclerView.setItemViewCacheSize(0);
         //mRecyclerView.setRecycledViewPool(Globals.getRecycledViewPool(requireContext()));
         return view;
@@ -65,7 +65,7 @@ public class AudioFragment extends Fragment {
     private static class AudioAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             implements MediaDb.UpdateCallback {
         private final MediaDb mMediaDb;
-        private final List<Audio> mAudios; // TODO Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
+        private final List<Audio> mAudios; // TODO(b/123710968) Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
 
         private AudioAdapter(@NonNull Context context) {
             setHasStableIds(true);

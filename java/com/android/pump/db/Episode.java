@@ -28,7 +28,7 @@ public class Episode extends Video {
     private final int mSeason;
     private final int mEpisode;
 
-    // TODO Lock mutable fields to ensure consistent updates
+    // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private Uri mThumbnailUri;
     private Uri mPosterUri;
     private boolean mLoaded;
