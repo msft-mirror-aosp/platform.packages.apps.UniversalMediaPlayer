@@ -16,17 +16,9 @@
 -->
 
 <!-- TODO(b/123635879) Replace keepScreenOn with a better solution -->
-<LinearLayout
+<androidx.media2.widget.VideoView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:id="@+id/video_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true">
-
-    <androidx.media2.widget.VideoView
-        android:id="@+id/video_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-    />
-
-</LinearLayout>
+    android:keepScreenOn="true"/>
