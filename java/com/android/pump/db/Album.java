@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
 public class Album {
     private final long mId;
 
-    // TODO Lock mutable fields to ensure consistent updates
+    // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private String mTitle;
     private Uri mAlbumArtUri;
     private Artist mArtist;

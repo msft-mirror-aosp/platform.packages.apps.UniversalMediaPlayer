@@ -26,7 +26,7 @@ public abstract class GlobalsApplication extends Application implements Globals.
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        // TODO implement
+        // TODO(b/123038906) Implement
     }
 
     @Override

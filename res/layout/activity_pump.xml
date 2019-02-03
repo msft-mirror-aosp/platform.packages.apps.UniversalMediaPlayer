@@ -57,7 +57,7 @@
 
             </com.google.android.material.appbar.AppBarLayout>
 
-            <!-- TODO Switch to androidx.viewpager2.widget.ViewPager2 -->
+            <!-- TODO(b/123715653) Switch to androidx.viewpager2.widget.ViewPager2 -->
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/activity_pump_view_pager"
                 android:layout_width="match_parent"

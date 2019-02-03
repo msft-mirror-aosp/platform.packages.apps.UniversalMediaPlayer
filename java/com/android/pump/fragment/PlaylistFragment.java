@@ -71,7 +71,7 @@ public class PlaylistFragment extends Fragment {
         gridLayoutManager.setSpanSizeLookup(
                 new HeaderSpanSizeLookup(gridLayoutManager.getSpanCount()));
 
-        // TODO Enable view caching
+        // TODO(b/123707260) Enable view caching
         //mRecyclerView.setItemViewCacheSize(0);
         //mRecyclerView.setRecycledViewPool(Globals.getRecycledViewPool(requireContext()));
         return view;
@@ -80,7 +80,7 @@ public class PlaylistFragment extends Fragment {
     private static class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             implements MediaDb.UpdateCallback {
         private final MediaDb mMediaDb;
-        private final List<Playlist> mPlaylists; // TODO Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
+        private final List<Playlist> mPlaylists; // TODO(b/123710968) Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
 
         private PlaylistAdapter(@NonNull Context context) {
             setHasStableIds(true);

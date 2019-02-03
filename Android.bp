@@ -18,7 +18,7 @@ android_app {
     name: "UniversalMediaPlayer",
     sdk_version: "current",
     srcs: [
-        "gen/**/*.java", // TODO Remove gen/ (either generate or remove dependencies)
+        "gen/**/*.java", // TODO(b/123702784) Remove gen/ (either generate or remove dependencies)
         "java/**/*.java"
     ],
     static_libs: [
@@ -27,7 +27,7 @@ android_app {
         "com.google.android.material_material"
     ],
     optimize: {
-        // TODO Re-enable. Currently disabled due to issues with androidx.media2_media2-exoplayer
+        // TODO(b/123703963) Re-enable. Currently disabled due to issues with media2-exoplayer
         enabled: false
     }
 }

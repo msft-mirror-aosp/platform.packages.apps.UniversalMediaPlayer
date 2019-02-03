@@ -245,7 +245,7 @@ public class MediaDb implements MediaProvider {
     }
 
     public void loadData(@NonNull Audio audio) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (audio.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -259,7 +259,7 @@ public class MediaDb implements MediaProvider {
     }
 
     public void loadData(@NonNull Artist artist) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (artist.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -273,7 +273,7 @@ public class MediaDb implements MediaProvider {
     }
 
     public void loadData(@NonNull Album album) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (album.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -287,7 +287,7 @@ public class MediaDb implements MediaProvider {
     }
 
     public void loadData(@NonNull Genre genre) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (genre.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -301,7 +301,7 @@ public class MediaDb implements MediaProvider {
     }
 
     public void loadData(@NonNull Playlist playlist) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (playlist.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -314,9 +314,9 @@ public class MediaDb implements MediaProvider {
         });
     }
 
-    // TODO Merge with loadData(episode)/loadData(other)
+    // TODO(b/123707018) Merge with loadData(episode)/loadData(other)
     public void loadData(@NonNull Movie movie) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (movie.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -336,7 +336,7 @@ public class MediaDb implements MediaProvider {
     }
 
     public void loadData(@NonNull Series series) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (series.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -355,9 +355,9 @@ public class MediaDb implements MediaProvider {
         });
     }
 
-    // TODO Merge with loadData(movie)/loadData(other)
+    // TODO(b/123707018) Merge with loadData(movie)/loadData(other)
     public void loadData(@NonNull Episode episode) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (episode.isLoaded()) return;
 
         mExecutor.execute(() -> {
@@ -376,9 +376,9 @@ public class MediaDb implements MediaProvider {
         });
     }
 
-    // TODO Merge with loadData(movie)/loadData(episode)
+    // TODO(b/123707018) Merge with loadData(movie)/loadData(episode)
     public void loadData(@NonNull Other other) {
-        // TODO ensure no concurrent runs for the same item !!
+        // TODO(b/123707632) Ensure no concurrent runs for the same item !!
         if (other.isLoaded()) return;
 
         mExecutor.execute(() -> {

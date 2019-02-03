@@ -30,7 +30,7 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
-        minSdkVersion 19 // TODO: Lower to 16 after media2-widget supports 16
+        minSdkVersion 19 // TODO(b/123716038) Lower to 16 after media2-widget supports 16
         targetSdkVersion 28
         versionCode 1
         versionName '1.0'
@@ -57,7 +57,7 @@ repositories {
     jcenter()
     google()
 
-    // TODO: Remove before releasing and after stable media2 is released
+    // TODO(b/123716096) Remove before releasing and after stable media2 is released
     maven { url "$rootDir/../../../prebuilts/sdk/current/androidx/m2repository" }
 }
 

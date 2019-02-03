@@ -63,7 +63,7 @@ public class GenreFragment extends Fragment {
         gridLayoutManager.setSpanSizeLookup(
                 new HeaderSpanSizeLookup(gridLayoutManager.getSpanCount()));
 
-        // TODO Enable view caching
+        // TODO(b/123707260) Enable view caching
         //mRecyclerView.setItemViewCacheSize(0);
         //mRecyclerView.setRecycledViewPool(Globals.getRecycledViewPool(requireContext()));
         return view;
@@ -72,7 +72,7 @@ public class GenreFragment extends Fragment {
     private static class GenreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             implements MediaDb.UpdateCallback {
         private final MediaDb mMediaDb;
-        private final List<Genre> mGenres; // TODO Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
+        private final List<Genre> mGenres; // TODO(b/123710968) Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
 
         private GenreAdapter(@NonNull Context context) {
             setHasStableIds(true);

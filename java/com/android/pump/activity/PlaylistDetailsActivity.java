@@ -36,7 +36,7 @@ public class PlaylistDetailsActivity extends AppCompatActivity {
 
     public static void start(@NonNull Context context, @NonNull Playlist playlist) {
         Intent intent = new Intent(context, PlaylistDetailsActivity.class);
-        // TODO Pass URI instead
+        // TODO(b/123704452) Pass URI instead
         intent.putExtra("id", playlist.getId()); // TODO Add constant key
         context.startActivity(intent);
     }

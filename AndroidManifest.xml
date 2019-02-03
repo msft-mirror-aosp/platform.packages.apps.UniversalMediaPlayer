@@ -26,55 +26,85 @@
     <application
         android:name=".app.PumpApplication"
         android:label="Personal Universal MediaPlayer"
-        android:theme="@style/PumpTheme">
+        android:theme="@style/PumpTheme"
+        android:icon="@null"
+        android:supportsRtl="true"
+        android:allowBackup="false"
+        android:appCategory="video">
 
-        <activity android:name=".activity.PumpActivity">
+        <activity
+            android:name=".activity.PumpActivity"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
 
-        <activity android:name=".activity.ArtistDetailsActivity"/>
+        <activity
+            android:name=".activity.ArtistDetailsActivity"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".activity.AlbumDetailsActivity"/>
+        <activity
+            android:name=".activity.AlbumDetailsActivity"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".activity.GenreDetailsActivity"/>
+        <activity
+            android:name=".activity.GenreDetailsActivity"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".activity.PlaylistDetailsActivity"/>
+        <activity
+            android:name=".activity.PlaylistDetailsActivity"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".activity.MovieDetailsActivity"/>
+        <activity
+            android:name=".activity.MovieDetailsActivity"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".activity.SeriesDetailsActivity"/>
+        <activity
+            android:name=".activity.SeriesDetailsActivity"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".activity.OtherDetailsActivity"/>
+        <activity
+            android:name=".activity.OtherDetailsActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".activity.AudioPlayerActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
+            android:configChanges="keyboardHidden|orientation|screenSize">
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+                <!-- TODO(b/123768134) Investigate which schemes, mime types, etc to support -->
+                <data android:scheme="content"/>
                 <data android:mimeType="audio/*"/>
             </intent-filter>
+
         </activity>
 
         <activity
             android:name=".activity.VideoPlayerActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
+            android:configChanges="keyboardHidden|orientation|screenSize">
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
+                <!-- TODO(b/123768100) Investigate which schemes, mime types, etc to support -->
+                <data android:scheme="content"/>
                 <data android:mimeType="video/*"/>
             </intent-filter>
+
         </activity>
 
-        <!-- TODO Handle music app intents;
+        <!-- TODO(b/123711288) Handle music app intents;
                   https://developer.android.com/reference/android/content/Intent.html#CATEGORY_APP_MUSIC
                   https://developer.android.com/reference/android/provider/MediaStore.html#INTENT_ACTION_MUSIC_PLAYER -->
 
-        <!-- TODO Handle play from search;
+        <!-- TODO(b/123711069) Handle play from search;
                   https://developer.android.com/guide/components/intents-common#PlaySearch
                   https://developer.android.com/reference/android/provider/MediaStore.html#INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH
                   https://developer.android.com/reference/android/provider/MediaStore#INTENT_ACTION_MEDIA_SEARCH

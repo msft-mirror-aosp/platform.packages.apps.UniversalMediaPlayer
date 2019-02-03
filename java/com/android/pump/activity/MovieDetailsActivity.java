@@ -41,7 +41,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MediaDb.U
 
     public static void start(@NonNull Context context, @NonNull Movie movie) {
         Intent intent = new Intent(context, MovieDetailsActivity.class);
-        // TODO Pass URI instead
+        // TODO(b/123704452) Pass URI instead
         intent.putExtra("id", movie.getId()); // TODO Add constant key
         context.startActivity(intent);
     }
@@ -136,7 +136,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MediaDb.U
         imageView.setImageURI(mMovie.getThumbnailUri());
         posterView.setImageURI(mMovie.getPosterUri());
         titleView.setText(mMovie.getTitle());
-        attributesView.setText("1h 20m"); // TODO Implement
+        attributesView.setText("1h 20m"); // TODO(b/123707108) Implement
         synopsisView.setText(mMovie.getSynopsis());
 
         ImageView playView = findViewById(R.id.activity_movie_details_play);

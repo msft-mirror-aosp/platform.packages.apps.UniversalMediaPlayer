@@ -60,11 +60,11 @@ class VideoStore extends ContentObserver {
         mChangeListener = changeListener;
         mMediaProvider = mediaProvider;
 
-        // TODO Do we need content observer for other content uris? (E.g. thumbnail)
+        // TODO(b/123706961) Do we need content observer for other content uris? (E.g. thumbnail)
         mContentResolver.registerContentObserver(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                 true, this);
 
-        // TODO When to call unregisterContentObserver?
+        // TODO(b/123706961) When to call unregisterContentObserver?
         // mContentResolver.unregisterContentObserver(this);
     }
 
@@ -236,7 +236,7 @@ class VideoStore extends ContentObserver {
     private @Nullable Uri getThumbnailUri(long id) {
         int thumbKind = MediaStore.Video.Thumbnails.MINI_KIND;
 
-        // TODO The following line is required to generate thumbnails -- is there a better way?
+        // TODO(b/123707512) The following line is required to generate thumbnails -- is there a better way?
         MediaStore.Video.Thumbnails.getThumbnail(mContentResolver, id, thumbKind, null);
 
         Uri thumbnailUri = null;
@@ -274,13 +274,13 @@ class VideoStore extends ContentObserver {
     @Override
     public void onChange(boolean selfChange, @Nullable Uri uri) {
         Clog.i(TAG, "onChange(" + selfChange + ", " + uri + ")");
-        // TODO Figure out what changed
+        // TODO(b/123706961) Figure out what changed
         // onChange(false, content://media)
         // onChange(false, content://media/external)
         // onChange(false, content://media/external/audio/media/444)
         // onChange(false, content://media/external/video/media/328?blocking=1&orig_id=328&group_id=0)
 
-        // TODO Notify listener about changes
+        // TODO(b/123706961) Notify listener about changes
         // mChangeListener.xxx();
     }
 }

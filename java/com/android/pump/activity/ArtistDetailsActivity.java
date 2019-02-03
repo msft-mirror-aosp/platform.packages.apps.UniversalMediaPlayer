@@ -36,7 +36,7 @@ public class ArtistDetailsActivity extends AppCompatActivity {
 
     public static void start(@NonNull Context context, @NonNull Artist artist) {
         Intent intent = new Intent(context, ArtistDetailsActivity.class);
-        // TODO Pass URI instead
+        // TODO(b/123704452) Pass URI instead
         intent.putExtra("id", artist.getId()); // TODO Add constant key
         context.startActivity(intent);
     }

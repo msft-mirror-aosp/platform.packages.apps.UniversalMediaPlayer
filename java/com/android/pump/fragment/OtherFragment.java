@@ -75,7 +75,7 @@ public class OtherFragment extends Fragment {
 
         mRecyclerView.setItemAnimator(null); // TODO Re-enable add/remove animations
 
-        // TODO Enable view caching
+        // TODO(b/123707260) Enable view caching
         //mRecyclerView.setItemViewCacheSize(0);
         //mRecyclerView.setRecycledViewPool(Globals.getRecycledViewPool(requireContext()));
         return view;
@@ -85,7 +85,7 @@ public class OtherFragment extends Fragment {
             implements MediaDb.UpdateCallback, ImageLoader.Callback {
         private final ImageLoader mImageLoader;
         private final MediaDb mMediaDb;
-        private final List<Other> mOthers; // TODO Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
+        private final List<Other> mOthers; // TODO(b/123710968) Use android.support.v7.util.SortedList/android.support.v7.widget.util.SortedListAdapterCallback instead
         private final SparseIntArray mSpanSize = new SparseIntArray();
 
         private OtherAdapter(@NonNull Context context) {
