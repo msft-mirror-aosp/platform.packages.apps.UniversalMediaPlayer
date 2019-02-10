@@ -16,275 +16,102 @@
 
 package com.android.pump.provider;
 
+import android.net.Uri;
+
+import com.android.pump.db.DataProvider;
+import com.android.pump.db.Episode;
+import com.android.pump.db.Movie;
+import com.android.pump.db.Series;
 import com.android.pump.util.Clog;
+import com.android.pump.util.Http;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 @WorkerThread
-public final class KnowledgeGraph {
+public final class KnowledgeGraph implements DataProvider {
     private static final String TAG = Clog.tag(KnowledgeGraph.class);
+
+    private static final DataProvider INSTANCE = new KnowledgeGraph();
 
     private KnowledgeGraph() { }
 
-    public static void search(@NonNull Query query) throws IOException {
-        search(query, 1);
+    @AnyThread
+    public static @NonNull DataProvider getInstance() {
+        return INSTANCE;
     }
 
-    public static void search(@NonNull Query query, int maxResults) throws IOException {
-        Clog.i(TAG, "search(" + query + ", " + maxResults + ")");
-    }
-}
-
-/*
-https://kgsearch.googleapis.com/v1/entities:search?key=AIzaSyCV2--pLOigY36buwE7bnmyPLj7-z8DOd0&indent=true&ids=/m/0524b41
-https://kgsearch.googleapis.com/v1/entities:search?key=AIzaSyCV2--pLOigY36buwE7bnmyPLj7-z8DOd0&limit=1&indent=true&query=game+of+thrones&types=Movie&types=MovieSeries&types=TVSeries&types=TVEpisode
-https://kgsearch.googleapis.com/v1/entities:search?key=AIzaSyCV2--pLOigY36buwE7bnmyPLj7-z8DOd0&limit=1&query=game+of+thrones&types=Movie&types=MovieSeries&types=TVSeries&types=TVEpisode&alt=json&pp=false
-https://www.googleapis.com/kgraph/v1/search?key=AIzaSyDD7SzYetjesv1XXLvDHOrab2B_97FVUnI&limit=1&lang=en&output=(name)&query=/m/0524b41
-https://www.googleapis.com/kgraph/v1/search?key=AIzaSyDD7SzYetjesv1XXLvDHOrab2B_97FVUnI&limit=1&lang=en&query=/m/0524b41&output=/common/topic/description+/common/topic/image+/type/object/name
-https://www.googleapis.com/kgraph/v1kpanels/search?query=babar&indent=true&key=AIzaSyDD7SzYetjesv1XXLvDHOrab2B_97FVUnI
-
-package com.google.tv.annotation.util;
-
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.JsonReader;
-import android.util.LruCache;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.regex.Pattern;
-
-public class Freebase extends LruCache<String, Freebase.FreebaseResult> {
-    private static final boolean USE_KNOWLEDGE_GRAPH = true;
-    private static final Pattern MID_REGEX = Pattern.compile("/m/[\\d\\w_]+");
-    private static final int CACHE_SIZE = 256;
-    private static final Freebase sFreebase = new Freebase();
-
-    public interface FreebaseListener {
-        void onDataLoaded(String mid, FreebaseResult result);
-    }
-
-    public static class FreebaseResult {
-        protected FreebaseResult(String title, String description, String imageUri) {
-            this.title = title;
-            this.description = description;
-            this.imageUri = imageUri;
-        }
-
-        public String title;
-        public String description;
-        public String imageUri;
-    }
-
-    private Freebase() {
-        super(CACHE_SIZE);
-    }
-
-    public static void loadData(String mid, FreebaseListener listener) {
-        sFreebase.internalLoadData(mid, listener);
-    }
-
-    private void internalLoadData(String mid, FreebaseListener listener) {
-        FreebaseResult result = get(mid);
-        if (result != null) {
-            listener.onDataLoaded(mid, result);
-        } else {
-            try {
-                new FreebaseLoader(mid, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } catch (RejectedExecutionException e) {
-            }
-        }
-    }
-
-    private String getTopicUri(String mid) {
-        Uri.Builder ub = new Uri.Builder();
-        ub.scheme("https");
-        ub.authority("www.googleapis.com");
-        if (USE_KNOWLEDGE_GRAPH) {
-            ub.appendPath("kgraph");
-        } else {
-            ub.appendPath("freebase");
-        }
-        ub.appendPath("v1");
-        ub.appendPath("topic");
-        ub.appendPath("m");
-        ub.appendPath(getMidId(mid));
-        ub.appendQueryParameter("filter", "/common/topic/description");
-        ub.appendQueryParameter("filter", "/common/topic/image");
-        ub.appendQueryParameter("filter", "/type/object/name");
-        ub.appendQueryParameter("limit", "1");
-        ub.appendQueryParameter("lang", Locale.getDefault().getLanguage());
-        if (USE_KNOWLEDGE_GRAPH) {
-            ub.appendQueryParameter("key", "AIzaSyDD7SzYetjesv1XXLvDHOrab2B_97FVUnI");
-        } else {
-            ub.appendQueryParameter("key", "AIzaSyCfYZxsM9VR99tFLIGyrxpMhJvyrqdCFnw");
-        }
-        return ub.build().toString();
-    }
-
-    private String getImageUri(String mid) {
-        Uri.Builder ub = new Uri.Builder();
-        ub.scheme("https");
-        ub.authority("usercontent.googleapis.com");
-        ub.appendPath("freebase");
-        ub.appendPath("v1");
-        ub.appendPath("image");
-        ub.appendPath("m");
-        ub.appendPath(getMidId(mid));
-        return ub.build().toString();
-    }
-
-    private String getMidId(String mid) {
-        if (!isValidMid(mid)) {
-            throw new IllegalArgumentException("Invalid Freebase MID");
-        }
-        return mid.substring(3);
-    }
-
-    private boolean isValidMid(String mid) {
-        return MID_REGEX.matcher(mid).matches();
-    }
-
-    class FreebaseLoader extends AsyncTask<Void, Void, FreebaseResult> {
-        private String mMid;
-        private FreebaseListener mListener;
-        private String mTitle;
-        private String mDescription;
-        private String mImageMid;
-
-        public FreebaseLoader(String mid, FreebaseListener listener) {
-            mMid = mid;
-            mListener = listener;
-        }
-
-        @Override
-        protected FreebaseResult doInBackground(Void... params) {
-            InputStream inputStream;
-            try {
-                inputStream = new URL(getTopicUri(mMid)).openStream();
-                InputStreamReader inputStreamReader =
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                parseFreebaseResult(new JsonReader(bufferedReader));
-                String imageUri = mImageMid == null ? null : getImageUri(mImageMid);
-                return new FreebaseResult(mTitle, mDescription, imageUri);
-            } catch (MalformedURLException e) {
-            } catch (IOException e) {
-            } catch (IllegalArgumentException e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(FreebaseResult result) {
-            if (result != null) {
-                put(mMid, result);
-                mListener.onDataLoaded(mMid, result);
-            }
-        }
-
-        void parseFreebaseResult(JsonReader jsonReader) throws IOException {
-            String name;
-            jsonReader.beginObject();
-            while (jsonReader.hasNext()) {
-                name = jsonReader.nextName();
-                if (name.equals("property")) {
-                    jsonReader.beginObject();
-                    while (jsonReader.hasNext()) {
-                        name = jsonReader.nextName();
-                        if (name.equals("/common/topic/description")) {
-                            jsonReader.beginObject();
-                            while (jsonReader.hasNext()) {
-                                name = jsonReader.nextName();
-                                if (name.equals("values")) {
-                                    jsonReader.beginArray();
-                                    while (jsonReader.hasNext()) {
-                                        jsonReader.beginObject();
-                                        while (jsonReader.hasNext()) {
-                                            name = jsonReader.nextName();
-                                            if (name.equals("text")) {
-                                                mDescription = jsonReader.nextString();
-                                            } else {
-                                                jsonReader.skipValue();
-                                            }
-                                        }
-                                        jsonReader.endObject();
-                                    }
-                                    jsonReader.endArray();
-                                } else {
-                                    jsonReader.skipValue();
-                                }
-                            }
-                            jsonReader.endObject();
-                        } else if (name.equals("/common/topic/image")) {
-                            jsonReader.beginObject();
-                            while (jsonReader.hasNext()) {
-                                name = jsonReader.nextName();
-                                if (name.equals("values")) {
-                                    jsonReader.beginArray();
-                                    while (jsonReader.hasNext()) {
-                                        jsonReader.beginObject();
-                                        while (jsonReader.hasNext()) {
-                                            name = jsonReader.nextName();
-                                            if (name.equals("id")) {
-                                                mImageMid = jsonReader.nextString();
-                                            } else {
-                                                jsonReader.skipValue();
-                                            }
-                                        }
-                                        jsonReader.endObject();
-                                    }
-                                    jsonReader.endArray();
-                                } else {
-                                    jsonReader.skipValue();
-                                }
-                            }
-                            jsonReader.endObject();
-                        } else if (name.equals("/type/object/name")) {
-                            jsonReader.beginObject();
-                            while (jsonReader.hasNext()) {
-                                name = jsonReader.nextName();
-                                if (name.equals("values")) {
-                                    jsonReader.beginArray();
-                                    while (jsonReader.hasNext()) {
-                                        jsonReader.beginObject();
-                                        while (jsonReader.hasNext()) {
-                                            name = jsonReader.nextName();
-                                            if (name.equals("value")) {
-                                                mTitle = jsonReader.nextString();
-                                            } else {
-                                                jsonReader.skipValue();
-                                            }
-                                        }
-                                        jsonReader.endObject();
-                                    }
-                                    jsonReader.endArray();
-                                } else {
-                                    jsonReader.skipValue();
-                                }
-                            }
-                            jsonReader.endObject();
-                        } else {
-                            jsonReader.skipValue();
-                        }
-                    }
-                    jsonReader.endObject();
-                } else {
-                    jsonReader.skipValue();
+    @Override
+    public boolean populateMovie(@NonNull Movie movie) throws IOException {
+        boolean updated = false;
+        try {
+            JSONObject root = (JSONObject) getContent(getContentUri(movie));
+            JSONArray items = root.getJSONArray("itemListElement");
+            JSONObject item = (JSONObject) items.get(0);
+            JSONObject result = item.getJSONObject("result");
+            JSONObject image = result.optJSONObject("image");
+            if (image != null) {
+                String imageUrl = image.getString("contentUrl");
+                if (imageUrl != null) {
+                    // TODO (b/125143807): Remove once HTTPS scheme urls are retrieved.
+                    imageUrl = imageUrl.replaceFirst("^http://", "https://");
+                    updated |= movie.setPosterUri(Uri.parse(imageUrl));
                 }
             }
-            jsonReader.endObject();
+            JSONObject description = result.optJSONObject("detailedDescription");
+            if (description != null) {
+                String descriptionText = description.getString("articleBody");
+                if (descriptionText != null) {
+                    updated |= movie.setSynopsis(descriptionText);
+                }
+            }
+        } catch (JSONException e) {
+            Clog.w(TAG, "Failed to parse search result", e);
+            throw new IOException(e);
         }
+        return updated;
+    }
+
+    @Override
+    public boolean populateSeries(@NonNull Series series) throws IOException {
+        return false;
+    }
+
+    @Override
+    public boolean populateEpisode(@NonNull Episode episode) throws IOException {
+        return false;
+    }
+
+    private static @NonNull Uri getContentUri(@NonNull Movie movie) {
+        // TODO: add logic to consider the year
+        Uri.Builder ub = getContentUri(movie.getTitle());
+        ub.appendQueryParameter("types", "Movie");
+        return ub.build();
+    }
+
+    private static @NonNull Uri.Builder getContentUri(@NonNull String title) {
+        Uri.Builder ub = new Uri.Builder();
+        ub.scheme("https");
+        ub.authority("kgsearch.googleapis.com");
+        ub.appendPath("v1");
+        ub.appendEncodedPath("entities:search");
+        ub.appendQueryParameter("key", ApiKeys.KG_API);
+        ub.appendQueryParameter("limit", "1");
+        ub.appendQueryParameter("query", title);
+        return ub;
+    }
+
+    private static @NonNull Object getContent(@NonNull Uri uri) throws IOException, JSONException {
+        return new JSONTokener(new String(Http.get(uri.toString()), StandardCharsets.UTF_8))
+                .nextValue();
     }
 }
-*/

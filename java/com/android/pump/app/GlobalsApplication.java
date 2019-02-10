@@ -5,7 +5,7 @@ import android.app.Application;
 import com.android.pump.concurrent.Executors;
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.MediaDb;
-import com.android.pump.provider.OmdbApi;
+import com.android.pump.provider.KnowledgeGraph;
 import com.android.pump.ui.CustomRecycledViewPool;
 import com.android.pump.util.Globals;
 import com.android.pump.util.ImageLoader;
@@ -64,6 +64,6 @@ public abstract class GlobalsApplication extends Application implements Globals.
     }
 
     private @NonNull DataProvider getDataProvider() {
-        return OmdbApi.getInstance();
+        return KnowledgeGraph.getInstance();
     }
 }
