@@ -137,10 +137,15 @@ public class MovieDetailsActivity extends AppCompatActivity implements MediaDb.U
         posterView.setImageURI(mMovie.getPosterUri());
         titleView.setText(mMovie.getTitle());
         attributesView.setText("1h 20m"); // TODO(b/123707108) Implement
-        synopsisView.setText(mMovie.getSynopsis());
+        synopsisView.setText(getSynopsis());
 
         ImageView playView = findViewById(R.id.activity_movie_details_play);
         playView.setOnClickListener((view) ->
                 VideoPlayerActivity.start(view.getContext(), mMovie));
+    }
+
+    private String getSynopsis() {
+        return (mMovie.getSynopsis() != null) ? mMovie.getSynopsis()
+                : mMovie.getDescription();
     }
 }

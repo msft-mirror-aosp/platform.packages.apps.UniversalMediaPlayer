@@ -17,6 +17,7 @@
 package com.android.pump.provider;
 
 import android.net.Uri;
+import android.util.Pair;
 
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.Episode;
@@ -53,52 +54,70 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateMovie(@NonNull Movie movie) throws IOException {
         boolean updated = false;
-        try {
-            JSONObject root = (JSONObject) getContent(getContentUri(movie));
-            JSONArray items = root.getJSONArray("itemListElement");
-            JSONObject item = (JSONObject) items.get(0);
-            JSONObject result = item.getJSONObject("result");
-            JSONObject image = result.optJSONObject("image");
-            if (image != null) {
-                String imageUrl = image.getString("contentUrl");
-                if (imageUrl != null) {
-                    // TODO (b/125143807): Remove once HTTPS scheme urls are retrieved.
-                    imageUrl = imageUrl.replaceFirst("^http://", "https://");
-                    updated |= movie.setPosterUri(Uri.parse(imageUrl));
-                }
-            }
-            JSONObject description = result.optJSONObject("detailedDescription");
-            if (description != null) {
-                String descriptionText = description.getString("articleBody");
-                if (descriptionText != null) {
-                    updated |= movie.setSynopsis(descriptionText);
-                }
-            }
-        } catch (JSONException e) {
-            Clog.w(TAG, "Failed to parse search result", e);
-            throw new IOException(e);
+        Pair<String, String> metadata = getMetadata(movie.getTitle(), "Movie");
+        if (metadata.first != null) {
+            updated |= movie.setPosterUri(Uri.parse(metadata.first));
+        }
+        if (metadata.second != null) {
+            updated |= movie.setDescription(metadata.second);
         }
         return updated;
     }
 
     @Override
     public boolean populateSeries(@NonNull Series series) throws IOException {
-        return false;
+        boolean updated = false;
+        Pair<String, String> metadata = getMetadata(series.getTitle(), "TVSeries");
+        if (metadata.first != null) {
+            updated |= series.setPosterUri(Uri.parse(metadata.first));
+        }
+        if (metadata.second != null) {
+            updated |= series.setDescription(metadata.second);
+        }
+        return updated;
     }
 
     @Override
     public boolean populateEpisode(@NonNull Episode episode) throws IOException {
-        return false;
+        boolean updated = false;
+        Pair<String, String> metadata = getMetadata(episode.getTitle(), "TVEpisode");
+        if (metadata.first != null) {
+            updated |= episode.setPosterUri(Uri.parse(metadata.first));
+        }
+        if (metadata.second != null) {
+            updated |= episode.setDescription(metadata.second);
+        }
+        return updated;
     }
 
-    private static @NonNull Uri getContentUri(@NonNull Movie movie) {
-        // TODO: add logic to consider the year
-        Uri.Builder ub = getContentUri(movie.getTitle());
-        ub.appendQueryParameter("types", "Movie");
-        return ub.build();
+    private Pair<String, String> getMetadata(String title, String type) throws IOException {
+        String imageUrl = null;
+        String description = null;
+        try {
+            JSONObject root = (JSONObject) getContent(getContentUri(title, type));
+            JSONArray items = root.getJSONArray("itemListElement");
+            JSONObject item = (JSONObject) items.get(0);
+            JSONObject result = item.getJSONObject("result");
+            JSONObject image = result.optJSONObject("image");
+            if (image != null) {
+                String url = image.getString("contentUrl");
+                if (url != null) {
+                    // TODO (b/125143807): Remove once HTTPS scheme urls are retrieved.
+                    imageUrl = url.replaceFirst("^http://", "https://");
+                }
+            }
+            JSONObject detailedDescription = result.optJSONObject("detailedDescription");
+            if (detailedDescription != null) {
+                description = detailedDescription.getString("articleBody");
+            }
+        } catch (JSONException e) {
+            Clog.w(TAG, "Failed to parse search result", e);
+            throw new IOException(e);
+        }
+        return new Pair<>(imageUrl, description);
     }
 
-    private static @NonNull Uri.Builder getContentUri(@NonNull String title) {
+    private static @NonNull Uri getContentUri(@NonNull String title, @NonNull String type) {
         Uri.Builder ub = new Uri.Builder();
         ub.scheme("https");
         ub.authority("kgsearch.googleapis.com");
@@ -107,7 +126,8 @@ public final class KnowledgeGraph implements DataProvider {
         ub.appendQueryParameter("key", ApiKeys.KG_API);
         ub.appendQueryParameter("limit", "1");
         ub.appendQueryParameter("query", title);
-        return ub;
+        ub.appendQueryParameter("types", type);
+        return ub.build();
     }
 
     private static @NonNull Object getContent(@NonNull Uri uri) throws IOException, JSONException {
