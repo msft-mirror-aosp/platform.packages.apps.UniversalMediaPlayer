@@ -16,9 +16,9 @@
 
 package com.android.pump.db;
 
-import java.io.IOException;
-
 import androidx.annotation.NonNull;
+
+import java.io.IOException;
 
 public interface DataProvider {
     boolean populateMovie(@NonNull Movie movie) throws IOException;

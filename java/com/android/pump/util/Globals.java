@@ -19,11 +19,11 @@ package com.android.pump.util;
 import android.content.Context;
 import android.content.ContextWrapper;
 
-import com.android.pump.db.MediaDb;
-
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
+
+import com.android.pump.db.MediaDb;
 
 @AnyThread
 public final class Globals {

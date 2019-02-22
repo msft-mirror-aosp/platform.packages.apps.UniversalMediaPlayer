@@ -2,6 +2,10 @@ package com.android.pump.app;
 
 import android.app.Application;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
+
 import com.android.pump.concurrent.Executors;
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.MediaDb;
@@ -11,10 +15,6 @@ import com.android.pump.util.Globals;
 import com.android.pump.util.ImageLoader;
 
 import java.util.concurrent.Executor;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
 
 @UiThread
 public abstract class GlobalsApplication extends Application implements Globals.Provider {

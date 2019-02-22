@@ -16,11 +16,11 @@
 
 package com.android.pump.util;
 
-import java.util.List;
-
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.List;
 
 @AnyThread
 public final class Collections {

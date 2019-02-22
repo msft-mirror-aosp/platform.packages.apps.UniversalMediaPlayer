@@ -23,16 +23,16 @@ import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.pump.R;
-import com.android.pump.db.MediaDb;
-import com.android.pump.db.Movie;
-import com.android.pump.util.Globals;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.pump.R;
+import com.android.pump.db.MediaDb;
+import com.android.pump.db.Movie;
+import com.android.pump.util.Globals;
 
 @UiThread
 public class MovieDetailsActivity extends AppCompatActivity implements MediaDb.UpdateCallback {

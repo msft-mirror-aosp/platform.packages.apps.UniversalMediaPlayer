@@ -22,15 +22,15 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 
-import com.android.pump.util.Globals;
-import com.android.pump.util.ImageLoader;
-import com.android.pump.util.Scheme;
-
 import androidx.annotation.AttrRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+
+import com.android.pump.util.Globals;
+import com.android.pump.util.ImageLoader;
+import com.android.pump.util.Scheme;
 
 @UiThread
 public class UriImageView extends PlaceholderImageView {

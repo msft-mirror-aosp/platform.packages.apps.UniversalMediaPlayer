@@ -20,15 +20,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.android.pump.R;
-import com.android.pump.db.MediaDb;
-import com.android.pump.db.Playlist;
-import com.android.pump.util.Globals;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.pump.R;
+import com.android.pump.db.MediaDb;
+import com.android.pump.db.Playlist;
+import com.android.pump.util.Globals;
 
 @UiThread
 public class PlaylistDetailsActivity extends AppCompatActivity {

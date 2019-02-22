@@ -19,6 +19,10 @@ package com.android.pump.provider;
 import android.net.Uri;
 import android.util.Pair;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
+
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.Episode;
 import com.android.pump.db.Movie;
@@ -26,17 +30,13 @@ import com.android.pump.db.Series;
 import com.android.pump.util.Clog;
 import com.android.pump.util.Http;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.WorkerThread;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @WorkerThread
 public final class KnowledgeGraph implements DataProvider {
