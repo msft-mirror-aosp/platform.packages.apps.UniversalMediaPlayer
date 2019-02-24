@@ -19,6 +19,7 @@ package com.android.pump.provider;
 final class ApiKeys {
     // STOPSHIP: Create proper API keys (and move to AndroidManifest.xml <meta-data/>?)
     static final String OMDB_API = "";
+    static final String KG_API = "AIzaSyCVXdlk2C1IqDk9na3OHcLjoxJVcKC05xk";
 
     private ApiKeys() { }
 }

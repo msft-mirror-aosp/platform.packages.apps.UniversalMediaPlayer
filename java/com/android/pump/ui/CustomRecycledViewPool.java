@@ -18,12 +18,12 @@ package com.android.pump.ui;
 
 import android.util.SparseBooleanArray;
 
-import com.android.pump.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+import com.android.pump.R;
 
 @UiThread
 public class CustomRecycledViewPool extends RecycledViewPool {

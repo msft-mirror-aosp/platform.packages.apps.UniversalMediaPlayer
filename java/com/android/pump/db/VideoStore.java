@@ -22,17 +22,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
+
 import com.android.pump.provider.Query;
 import com.android.pump.util.Clog;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 
 @WorkerThread
 class VideoStore extends ContentObserver {

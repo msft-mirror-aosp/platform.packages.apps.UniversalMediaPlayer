@@ -18,6 +18,10 @@ package com.android.pump.provider;
 
 import android.net.Uri;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
+
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.Episode;
 import com.android.pump.db.Movie;
@@ -31,10 +35,6 @@ import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.WorkerThread;
 
 @WorkerThread
 public final class OmdbApi implements DataProvider {

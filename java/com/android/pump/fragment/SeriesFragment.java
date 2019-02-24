@@ -26,14 +26,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.pump.R;
-import com.android.pump.activity.SeriesDetailsActivity;
-import com.android.pump.db.MediaDb;
-import com.android.pump.db.Series;
-import com.android.pump.util.Globals;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -43,6 +35,14 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
+
+import com.android.pump.R;
+import com.android.pump.activity.SeriesDetailsActivity;
+import com.android.pump.db.MediaDb;
+import com.android.pump.db.Series;
+import com.android.pump.util.Globals;
+
+import java.util.List;
 
 @UiThread
 public class SeriesFragment extends Fragment {

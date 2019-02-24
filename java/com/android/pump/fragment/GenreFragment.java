@@ -26,14 +26,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.pump.R;
-import com.android.pump.activity.GenreDetailsActivity;
-import com.android.pump.db.Genre;
-import com.android.pump.db.MediaDb;
-import com.android.pump.util.Globals;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -41,6 +33,14 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.pump.R;
+import com.android.pump.activity.GenreDetailsActivity;
+import com.android.pump.db.Genre;
+import com.android.pump.db.MediaDb;
+import com.android.pump.util.Globals;
+
+import java.util.List;
 
 @UiThread
 public class GenreFragment extends Fragment {

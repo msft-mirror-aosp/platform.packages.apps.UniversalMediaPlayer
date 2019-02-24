@@ -27,13 +27,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.android.pump.R;
-
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.widget.AppCompatSpinner;
+
+import com.android.pump.R;
 
 @UiThread
 public class SortOrderSpinner extends AppCompatSpinner {

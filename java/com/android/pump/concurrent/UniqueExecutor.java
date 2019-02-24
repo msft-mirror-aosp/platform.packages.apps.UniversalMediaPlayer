@@ -16,6 +16,10 @@
 
 package com.android.pump.concurrent;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,10 +28,6 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 @AnyThread
 public class UniqueExecutor extends ThreadPoolExecutor {

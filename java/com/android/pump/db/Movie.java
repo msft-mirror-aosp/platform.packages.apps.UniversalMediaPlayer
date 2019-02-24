@@ -31,6 +31,7 @@ public class Movie extends Video {
     private Uri mThumbnailUri;
     private Uri mPosterUri;
     private String mSynopsis;
+    private String mDescription;
     private boolean mLoaded;
 
     Movie(long id, @NonNull Uri uri, @NonNull String mimeType, @NonNull String title) {
@@ -99,6 +100,18 @@ public class Movie extends Video {
         }
         mSynopsis = synopsis;
         return true;
+    }
+
+    public boolean setDescription(String description) {
+        if (description.equals(mDescription)) {
+            return false;
+        }
+        mDescription = description;
+        return true;
+    }
+
+    public @Nullable String getDescription() {
+        return mDescription;
     }
 
     boolean isLoaded() {

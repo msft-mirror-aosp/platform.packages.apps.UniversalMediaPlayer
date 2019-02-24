@@ -24,6 +24,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.pump.R;
 import com.android.pump.activity.AudioPlayerActivity;
 import com.android.pump.db.Album;
@@ -33,12 +39,6 @@ import com.android.pump.db.MediaDb;
 import com.android.pump.util.Globals;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 @UiThread
 public class AudioFragment extends Fragment {

@@ -21,12 +21,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.pump.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.fragment.app.Fragment;
+
+import com.android.pump.R;
 
 @UiThread
 public class HomeFragment extends Fragment {

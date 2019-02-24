@@ -19,6 +19,9 @@ package com.android.pump.provider;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
+
 import com.android.pump.util.Clog;
 import com.android.pump.util.Http;
 
@@ -32,9 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.WorkerThread;
 
 @WorkerThread
 public final class Wikidata {

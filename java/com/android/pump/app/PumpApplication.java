@@ -19,11 +19,11 @@ package com.android.pump.app;
 import android.os.Handler;
 import android.os.StrictMode;
 
-import com.android.pump.BuildConfig;
-import com.android.pump.util.Clog;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+
+import com.android.pump.BuildConfig;
+import com.android.pump.util.Clog;
 
 @MainThread
 public class PumpApplication extends GlobalsApplication implements Thread.UncaughtExceptionHandler {

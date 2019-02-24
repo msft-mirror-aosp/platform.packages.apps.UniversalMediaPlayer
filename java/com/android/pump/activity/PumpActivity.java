@@ -22,6 +22,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.android.pump.R;
 import com.android.pump.fragment.AlbumFragment;
 import com.android.pump.fragment.ArtistFragment;
@@ -37,20 +52,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
 import com.google.android.material.tabs.TabLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
 @UiThread
 public class PumpActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
     private static final int REQUIRED_PERMISSIONS_REQUEST_CODE = 42;
@@ -60,25 +61,27 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         android.Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    private static final Page[] HOME_PAGES = {
-        new Page(HomeFragment::newInstance, "Home")
-    };
-    private static final Page[] VIDEO_PAGES = {
-        new Page(MovieFragment::newInstance, "Movies"),
-        new Page(SeriesFragment::newInstance, "TV Shows"),
-        new Page(OtherFragment::newInstance, "Personal"),
-        new Page(HomeFragment::newInstance, "All videos")
-    };
-    private static final Page[] AUDIO_PAGES = {
-        new Page(AudioFragment::newInstance, "All audios"),
-        new Page(PlaylistFragment::newInstance, "Playlists"),
-        new Page(AlbumFragment::newInstance, "Albums"),
-        new Page(GenreFragment::newInstance, "Genres"),
-        new Page(ArtistFragment::newInstance, "Artists")
-    };
-    private static final Page[] FAVORITE_PAGES = {
-        new Page(HomeFragment::newInstance, "Videos"),
-        new Page(HomeFragment::newInstance, "Audios")
+    private static final Pages[] PAGES_LIST = {
+        new Pages(R.id.menu_home, new Page[] {
+            new Page(HomeFragment::newInstance, "Home")
+        }),
+        new Pages(R.id.menu_video, new Page[] {
+            new Page(MovieFragment::newInstance, "Movies"),
+            new Page(SeriesFragment::newInstance, "TV Shows"),
+            new Page(OtherFragment::newInstance, "Personal"),
+            new Page(HomeFragment::newInstance, "All videos")
+        }),
+        new Pages(R.id.menu_audio, new Page[] {
+            new Page(AudioFragment::newInstance, "All audios"),
+            new Page(PlaylistFragment::newInstance, "Playlists"),
+            new Page(AlbumFragment::newInstance, "Albums"),
+            new Page(GenreFragment::newInstance, "Genres"),
+            new Page(ArtistFragment::newInstance, "Artists")
+        }),
+        new Pages(R.id.menu_favorite, new Page[] {
+            new Page(HomeFragment::newInstance, "Videos"),
+            new Page(HomeFragment::newInstance, "Audios")
+        })
     };
 
     private ActivityPagerAdapter mActivityPagerAdapter;
@@ -130,19 +133,11 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_home:
-                selectPages(item.getTitle(), HOME_PAGES);
+        for (Pages pages : PAGES_LIST) {
+            if (pages.id == item.getItemId()) {
+                selectPages(item.getTitle(), pages);
                 return true;
-            case R.id.menu_video:
-                selectPages(item.getTitle(), VIDEO_PAGES);
-                return true;
-            case R.id.menu_audio:
-                selectPages(item.getTitle(), AUDIO_PAGES);
-                return true;
-            case R.id.menu_favorite:
-                selectPages(item.getTitle(), FAVORITE_PAGES);
-                return true;
+            }
         }
         return false;
     }
@@ -194,42 +189,53 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         return false;
     }
 
-    private void selectPages(@NonNull CharSequence title, @NonNull Page[] pages) {
+    private void selectPages(@NonNull CharSequence title, @NonNull Pages pages) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(title);
         }
 
-        mTabLayout.setVisibility(pages.length <= 1 ? View.GONE : View.VISIBLE);
-        mTabLayout.setTabMode(pages.length <= 4 ? TabLayout.MODE_FIXED : TabLayout.MODE_SCROLLABLE);
+        Pages current = mActivityPagerAdapter.getPages();
+        if (current != null) {
+            current.setCurrent(mViewPager.getCurrentItem());
+        }
+
         mActivityPagerAdapter.setPages(pages);
+        int count = mActivityPagerAdapter.getCount();
+        mTabLayout.setVisibility(count <= 1 ? View.GONE : View.VISIBLE);
+        mTabLayout.setTabMode(count <= 4 ? TabLayout.MODE_FIXED : TabLayout.MODE_SCROLLABLE);
+        mViewPager.setCurrentItem(pages.getCurrent());
     }
 
     private static class ActivityPagerAdapter extends FragmentPagerAdapter {
-        private Page[] mPages;
+        private Pages mPages;
 
         private ActivityPagerAdapter(@NonNull FragmentManager fm) {
             super(fm);
         }
 
-        private void setPages(@NonNull Page[] pages) {
+        private void setPages(@NonNull Pages pages) {
             mPages = pages;
             notifyDataSetChanged();
         }
 
+        private @Nullable Pages getPages() {
+            return mPages;
+        }
+
         @Override
         public int getCount() {
-            return mPages.length;
+            return mPages.pages.length;
         }
 
         @Override
         public @NonNull Fragment getItem(int position) {
-            return mPages[position].pageCreator.newInstance();
+            return mPages.pages[position].pageCreator.newInstance();
         }
 
         @Override
         public long getItemId(int position) {
-            return mPages[position].id;
+            return mPages.pages[position].id;
         }
 
         @Override
@@ -239,7 +245,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
         @Override
         public @NonNull CharSequence getPageTitle(int position) {
-            return mPages[position].title;
+            return mPages.pages[position].title;
         }
     }
 
@@ -254,6 +260,26 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         private final int id;
         private final PageCreator pageCreator;
         private final String title;
+    }
+
+    private static class Pages {
+        private Pages(@IdRes int id, @NonNull Page[] pages) {
+            this.id = id;
+            this.pages = pages;
+        }
+
+        private final int id;
+        private final Page[] pages;
+
+        private int current;
+
+        private void setCurrent(int current) {
+            this.current = current;
+        }
+
+        private int getCurrent() {
+            return current;
+        }
     }
 
     @FunctionalInterface

@@ -18,14 +18,14 @@ package com.android.pump.provider;
 
 import android.net.Uri;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+
 import com.android.pump.util.Clog;
 
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
 
 @AnyThread
 public final class Query {

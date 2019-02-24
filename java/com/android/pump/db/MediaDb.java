@@ -19,6 +19,11 @@ package com.android.pump.db;
 import android.Manifest;
 import android.content.ContentResolver;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
+import androidx.annotation.UiThread;
+import androidx.collection.ArraySet;
+
 import com.android.pump.concurrent.Executors;
 import com.android.pump.util.Clog;
 
@@ -30,11 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
-import androidx.annotation.UiThread;
-import androidx.collection.ArraySet;
 
 @UiThread
 public class MediaDb implements MediaProvider {

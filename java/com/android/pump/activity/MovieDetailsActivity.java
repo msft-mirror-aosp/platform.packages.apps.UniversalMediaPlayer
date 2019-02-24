@@ -23,16 +23,16 @@ import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.pump.R;
-import com.android.pump.db.MediaDb;
-import com.android.pump.db.Movie;
-import com.android.pump.util.Globals;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.pump.R;
+import com.android.pump.db.MediaDb;
+import com.android.pump.db.Movie;
+import com.android.pump.util.Globals;
 
 @UiThread
 public class MovieDetailsActivity extends AppCompatActivity implements MediaDb.UpdateCallback {
@@ -137,10 +137,15 @@ public class MovieDetailsActivity extends AppCompatActivity implements MediaDb.U
         posterView.setImageURI(mMovie.getPosterUri());
         titleView.setText(mMovie.getTitle());
         attributesView.setText("1h 20m"); // TODO(b/123707108) Implement
-        synopsisView.setText(mMovie.getSynopsis());
+        synopsisView.setText(getSynopsis());
 
         ImageView playView = findViewById(R.id.activity_movie_details_play);
         playView.setOnClickListener((view) ->
                 VideoPlayerActivity.start(view.getContext(), mMovie));
+    }
+
+    private String getSynopsis() {
+        return (mMovie.getSynopsis() != null) ? mMovie.getSynopsis()
+                : mMovie.getDescription();
     }
 }

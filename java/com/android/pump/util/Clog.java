@@ -16,13 +16,13 @@
 
 package com.android.pump.util;
 
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+
 import com.android.pump.BuildConfig;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
-
-import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
 
 @AnyThread
 public final class Clog {

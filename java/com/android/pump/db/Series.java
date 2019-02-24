@@ -18,13 +18,13 @@ package com.android.pump.db;
 
 import android.net.Uri;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @AnyThread
 public class Series {
@@ -34,6 +34,7 @@ public class Series {
     // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private Uri mPosterUri;
     private final List<Episode> mEpisodes = new ArrayList<>();
+    private String mDescription;
     private boolean mLoaded;
 
     Series(@NonNull String title) {
@@ -85,6 +86,18 @@ public class Series {
             return false;
         }
         return mEpisodes.add(episode);
+    }
+
+    public boolean setDescription(String description) {
+        if (description.equals(mDescription)) {
+            return false;
+        }
+        mDescription = description;
+        return true;
+    }
+
+    public @Nullable String getDescription() {
+        return mDescription;
     }
 
     boolean isLoaded() {

@@ -31,6 +31,7 @@ public class Episode extends Video {
     // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private Uri mThumbnailUri;
     private Uri mPosterUri;
+    private String mDescription;
     private boolean mLoaded;
 
     Episode(long id, @NonNull Uri uri, @NonNull String mimeType, @NonNull Series series,
@@ -79,6 +80,22 @@ public class Episode extends Video {
         }
         mPosterUri = posterUri;
         return true;
+    }
+
+    public boolean setDescription(String description) {
+        if (description.equals(mDescription)) {
+            return false;
+        }
+        mDescription = description;
+        return true;
+    }
+
+    public @Nullable String getDescription() {
+        return mDescription;
+    }
+
+    public @NonNull String getTitle() {
+        return mSeries.getTitle();
     }
 
     boolean isLoaded() {

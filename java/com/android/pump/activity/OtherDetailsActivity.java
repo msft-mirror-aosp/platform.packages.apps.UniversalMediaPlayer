@@ -24,6 +24,12 @@ import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.pump.R;
 import com.android.pump.db.MediaDb;
 import com.android.pump.db.Other;
@@ -31,12 +37,6 @@ import com.android.pump.util.Globals;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 
 @UiThread
 public class OtherDetailsActivity extends AppCompatActivity implements MediaDb.UpdateCallback {

@@ -19,11 +19,11 @@ package com.android.pump.util;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
-import java.util.Map;
-
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
+
+import java.util.Map;
 
 @AnyThread
 class OrientationCache {
