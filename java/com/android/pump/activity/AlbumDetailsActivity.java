@@ -139,7 +139,8 @@ public class AlbumDetailsActivity extends AppCompatActivity implements MediaDb.U
 
         imageView.setImageURI(mAlbum.getAlbumArtUri());
         nameView.setText(mAlbum.getTitle());
-        countView.setText(mAlbum.getAudios().size() + " songs"); // TODO Move to resource
+        // TODO(b/123037263) I18n -- Move to resource
+        countView.setText(mAlbum.getAudios().size() + " songs");
 
         ImageView playView = findViewById(R.id.activity_album_details_play);
         playView.setOnClickListener((view) ->

@@ -189,7 +189,8 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MediaD
             image3View.setVisibility(View.VISIBLE);
         }
         nameView.setText(mPlaylist.getName());
-        countView.setText(mPlaylist.getAudios().size() + " songs"); // TODO Move to resource
+        // TODO(b/123037263) I18n -- Move to resource
+        countView.setText(mPlaylist.getAudios().size() + " songs");
 
         ImageView playView = findViewById(R.id.activity_playlist_details_play);
         playView.setOnClickListener((view) ->
