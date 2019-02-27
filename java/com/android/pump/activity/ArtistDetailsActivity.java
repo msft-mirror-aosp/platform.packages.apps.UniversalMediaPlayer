@@ -18,20 +18,35 @@ package com.android.pump.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.pump.R;
+import com.android.pump.db.Album;
 import com.android.pump.db.Artist;
+import com.android.pump.db.Audio;
 import com.android.pump.db.MediaDb;
 import com.android.pump.util.Globals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @UiThread
-public class ArtistDetailsActivity extends AppCompatActivity {
+public class ArtistDetailsActivity extends AppCompatActivity implements MediaDb.UpdateCallback {
+    private MediaDb mMediaDb;
     private Artist mArtist;
 
     public static void start(@NonNull Context context, @NonNull Artist artist) {
@@ -46,6 +61,17 @@ public class ArtistDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist_details);
 
+        setSupportActionBar(findViewById(R.id.activity_artist_details_toolbar));
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        mMediaDb = Globals.getMediaDb(this);
+        mMediaDb.addArtistUpdateCallback(this);
+
         handleIntent();
     }
 
@@ -57,16 +83,158 @@ public class ArtistDetailsActivity extends AppCompatActivity {
         handleIntent();
     }
 
+    @Override
+    protected void onDestroy() {
+        mMediaDb.removeArtistUpdateCallback(this);
+
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_pump, menu); // TODO activity_artist_details ?
+        return true;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        // TODO It should not be necessary to override this method
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public void onItemsInserted(int index, int count) { }
+
+    @Override
+    public void onItemsUpdated(int index, int count) {
+        for (int i = index; i < index + count; ++i) {
+            Artist artist = mMediaDb.getArtists().get(i);
+            if (artist.equals(mArtist)) {
+                updateViews();
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onItemsRemoved(int index, int count) { }
+
     private void handleIntent() {
         Intent intent = getIntent();
         Bundle extras = intent != null ? intent.getExtras() : null;
         if (extras != null) {
             long id = extras.getLong("id");
 
-            MediaDb mediaDb = Globals.getMediaDb(this);
-            mArtist = mediaDb.getArtistById(id);
+            mArtist = mMediaDb.getArtistById(id);
         } else {
             mArtist = null;
+            // TODO This shouldn't happen -- throw exception?
         }
+
+        mMediaDb.loadData(mArtist);
+        updateViews();
+    }
+
+    private void updateViews() {
+        ImageView imageView = findViewById(R.id.activity_artist_details_image);
+        TextView nameView = findViewById(R.id.activity_artist_details_name);
+        TextView countView = findViewById(R.id.activity_artist_details_count);
+
+        // TODO This should be artist head shot rather than album art
+        Uri albumArtUri = null;
+        List<Album> albums = mArtist.getAlbums();
+        for (Album album : albums) {
+            if (album.getAlbumArtUri() != null) {
+                albumArtUri = album.getAlbumArtUri();
+                break;
+            }
+        }
+        imageView.setImageURI(albumArtUri);
+        nameView.setText(mArtist.getName());
+        countView.setText(getAudios(mMediaDb, mArtist).size() + " songs"); // TODO Move to resource
+
+        ImageView playView = findViewById(R.id.activity_artist_details_play);
+        playView.setOnClickListener((view) ->
+                AudioPlayerActivity.start(view.getContext(), mArtist));
+
+        RecyclerView recyclerView = findViewById(R.id.activity_artist_details_recycler_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(new ArtistAdapter(mMediaDb, mArtist));
+
+        // TODO(b/123707260) Enable view caching
+        //recyclerView.setItemViewCacheSize(0);
+        //recyclerView.setRecycledViewPool(Globals.getRecycledViewPool(requireContext()));
+    }
+
+    private static class ArtistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private final MediaDb mMediaDb;
+        Artist mArtist;
+
+        private ArtistAdapter(@NonNull MediaDb mediaDb, @NonNull Artist artist) {
+            setHasStableIds(true);
+            mMediaDb = mediaDb;
+            mArtist = artist;
+        }
+
+        @Override
+        public @NonNull RecyclerView.ViewHolder onCreateViewHolder(
+                @NonNull ViewGroup parent, int viewType) {
+            return new AudioViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(viewType, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            Audio audio = getAudios(mMediaDb, mArtist).get(position);
+            mMediaDb.loadData(audio); // TODO Where should we call this? In bind()?
+            ((AudioViewHolder) holder).bind(mArtist, audio);
+        }
+
+        @Override
+        public int getItemCount() {
+            return getAudios(mMediaDb, mArtist).size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return getAudios(mMediaDb, mArtist).get(position).getId();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return R.layout.audio;
+        }
+    }
+
+    private static class AudioViewHolder extends RecyclerView.ViewHolder {
+        private AudioViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+
+        private void bind(@NonNull Artist artist, @NonNull Audio audio) {
+            ImageView imageView = itemView.findViewById(R.id.audio_image);
+            TextView titleView = itemView.findViewById(R.id.audio_title);
+            TextView artistView = itemView.findViewById(R.id.audio_artist);
+
+            Album album = audio.getAlbum();
+            imageView.setImageURI(album == null ? null : album.getAlbumArtUri());
+            titleView.setText(audio.getTitle());
+            artistView.setText(artist.getName());
+
+            itemView.setOnClickListener((view) ->
+                    AudioPlayerActivity.start(view.getContext(), audio));
+        }
+    }
+
+    // TODO Move this to DB (and sort out dependencies once)
+    private static @NonNull List<Audio> getAudios(@NonNull MediaDb mediaDb, @NonNull Artist artist) {
+        List<Audio> audios = new ArrayList<>();
+        for (Audio audio : mediaDb.getAudios()) {
+            if (artist.equals(audio.getArtist())) {
+                audios.add(audio);
+            }
+        }
+        return audios;
     }
 }

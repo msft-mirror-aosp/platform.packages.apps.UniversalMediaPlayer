@@ -31,7 +31,11 @@ import androidx.media2.UriMediaItem;
 import androidx.media2.widget.VideoView;
 
 import com.android.pump.R;
+import com.android.pump.db.Album;
+import com.android.pump.db.Artist;
 import com.android.pump.db.Audio;
+import com.android.pump.db.Genre;
+import com.android.pump.db.Playlist;
 import com.android.pump.util.Clog;
 
 @UiThread
@@ -46,6 +50,63 @@ public class AudioPlayerActivity extends AppCompatActivity {
                 audio.getId());
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setDataAndTypeAndNormalize(uri, audio.getMimeType());
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(intent);
+    }
+
+    public static void start(@NonNull Context context, @NonNull Album album) {
+        // TODO(b/123702587) Find a better URI (album.getUri()?)
+        Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                album.getId());
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        // TODO Should the mime type be MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE?
+        intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Albums.CONTENT_TYPE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(intent);
+    }
+
+    public static void start(@NonNull Context context, @NonNull Artist artist) {
+        // TODO(b/123702587) Find a better URI (artist.getUri()?)
+        Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
+                artist.getId());
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        // TODO Should the mime type be MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE?
+        intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Artists.CONTENT_TYPE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(intent);
+    }
+
+    public static void start(@NonNull Context context, @NonNull Genre genre) {
+        // TODO(b/123702587) Find a better URI (genre.getUri()?)
+        Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
+                genre.getId());
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        // TODO Should the mime type be MediaStore.Audio.Genres.ENTRY_CONTENT_TYPE?
+        intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Genres.CONTENT_TYPE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(intent);
+    }
+
+    public static void start(@NonNull Context context, @NonNull Playlist playlist) {
+        // TODO(b/123702587) Find a better URI (playlist.getUri()?)
+        Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+                playlist.getId());
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        // TODO Should the mime type be MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE?
+        intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Playlists.CONTENT_TYPE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(intent);
+    }
+
+    public static void start(@NonNull Context context, @NonNull Playlist playlist, int position) {
+        // TODO(b/123702587) Find a better URI?
+        Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+                playlist.getId()).buildUpon()
+                    .appendEncodedPath(MediaStore.Audio.Playlists.Members.CONTENT_DIRECTORY)
+                    .appendEncodedPath(String.valueOf(position)).build();
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        // TODO Should the mime type be MediaStore.Audio.Playlists.CONTENT_TYPE?
+        intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(intent);
     }
