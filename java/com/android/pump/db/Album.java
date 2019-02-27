@@ -22,6 +22,10 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @AnyThread
 public class Album {
     private final long mId;
@@ -30,6 +34,7 @@ public class Album {
     private String mTitle;
     private Uri mAlbumArtUri;
     private Artist mArtist;
+    private final List<Audio> mAudios = new ArrayList<>();
     private boolean mLoaded;
 
     Album(long id) {
@@ -50,6 +55,10 @@ public class Album {
 
     public @Nullable Artist getArtist() {
         return mArtist;
+    }
+
+    public @NonNull List<Audio> getAudios() {
+        return Collections.unmodifiableList(mAudios);
     }
 
     boolean setTitle(@NonNull String title) {
@@ -74,6 +83,13 @@ public class Album {
         }
         mArtist = artist;
         return true;
+    }
+
+    boolean addAudio(@NonNull Audio audio) {
+        if (mAudios.contains(audio)) {
+            return false;
+        }
+        return mAudios.add(audio);
     }
 
     boolean isLoaded() {

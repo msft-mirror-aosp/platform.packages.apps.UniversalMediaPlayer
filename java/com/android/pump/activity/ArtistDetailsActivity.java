@@ -41,7 +41,6 @@ import com.android.pump.db.Audio;
 import com.android.pump.db.MediaDb;
 import com.android.pump.util.Globals;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @UiThread
@@ -152,7 +151,7 @@ public class ArtistDetailsActivity extends AppCompatActivity implements MediaDb.
         }
         imageView.setImageURI(albumArtUri);
         nameView.setText(mArtist.getName());
-        countView.setText(getAudios(mMediaDb, mArtist).size() + " songs"); // TODO Move to resource
+        countView.setText(mArtist.getAudios().size() + " songs"); // TODO Move to resource
 
         ImageView playView = findViewById(R.id.activity_artist_details_play);
         playView.setOnClickListener((view) ->
@@ -186,19 +185,19 @@ public class ArtistDetailsActivity extends AppCompatActivity implements MediaDb.
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            Audio audio = getAudios(mMediaDb, mArtist).get(position);
+            Audio audio = mArtist.getAudios().get(position);
             mMediaDb.loadData(audio); // TODO Where should we call this? In bind()?
             ((AudioViewHolder) holder).bind(mArtist, audio);
         }
 
         @Override
         public int getItemCount() {
-            return getAudios(mMediaDb, mArtist).size();
+            return mArtist.getAudios().size();
         }
 
         @Override
         public long getItemId(int position) {
-            return getAudios(mMediaDb, mArtist).get(position).getId();
+            return mArtist.getAudios().get(position).getId();
         }
 
         @Override
@@ -225,16 +224,5 @@ public class ArtistDetailsActivity extends AppCompatActivity implements MediaDb.
             itemView.setOnClickListener((view) ->
                     AudioPlayerActivity.start(view.getContext(), audio));
         }
-    }
-
-    // TODO Move this to DB (and sort out dependencies once)
-    private static @NonNull List<Audio> getAudios(@NonNull MediaDb mediaDb, @NonNull Artist artist) {
-        List<Audio> audios = new ArrayList<>();
-        for (Audio audio : mediaDb.getAudios()) {
-            if (artist.equals(audio.getArtist())) {
-                audios.add(audio);
-            }
-        }
-        return audios;
     }
 }

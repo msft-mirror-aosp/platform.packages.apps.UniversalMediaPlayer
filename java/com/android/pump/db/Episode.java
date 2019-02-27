@@ -82,16 +82,16 @@ public class Episode extends Video {
         return true;
     }
 
-    public boolean setDescription(String description) {
+    public @Nullable String getDescription() {
+        return mDescription;
+    }
+
+    public boolean setDescription(@NonNull String description) {
         if (description.equals(mDescription)) {
             return false;
         }
         mDescription = description;
         return true;
-    }
-
-    public @Nullable String getDescription() {
-        return mDescription;
     }
 
     public @NonNull String getTitle() {

@@ -171,12 +171,14 @@ class AudioStore extends ContentObserver {
 
                             Artist artist = Collections.find(artists, artistId, Artist::getId);
                             audio.setArtist(artist);
+                            artist.addAudio(audio);
                         }
                         if (!cursor.isNull(albumIdColumn)) {
                             long albumId = cursor.getLong(albumIdColumn);
 
                             Album album = Collections.find(albums, albumId, Album::getId);
                             audio.setAlbum(album);
+                            album.addAudio(audio);
                         }
                     }
                 } finally {

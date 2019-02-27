@@ -41,9 +41,6 @@ import com.android.pump.db.Genre;
 import com.android.pump.db.MediaDb;
 import com.android.pump.util.Globals;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @UiThread
 public class GenreDetailsActivity extends AppCompatActivity implements MediaDb.UpdateCallback {
     private MediaDb mMediaDb;

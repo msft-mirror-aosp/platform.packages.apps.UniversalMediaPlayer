@@ -18,7 +18,6 @@ package com.android.pump.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,9 +39,6 @@ import com.android.pump.db.Artist;
 import com.android.pump.db.Audio;
 import com.android.pump.db.MediaDb;
 import com.android.pump.util.Globals;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @UiThread
 public class AlbumDetailsActivity extends AppCompatActivity implements MediaDb.UpdateCallback {
@@ -143,7 +139,7 @@ public class AlbumDetailsActivity extends AppCompatActivity implements MediaDb.U
 
         imageView.setImageURI(mAlbum.getAlbumArtUri());
         nameView.setText(mAlbum.getTitle());
-        countView.setText(getAudios(mMediaDb, mAlbum).size() + " songs"); // TODO Move to resource
+        countView.setText(mAlbum.getAudios().size() + " songs"); // TODO Move to resource
 
         ImageView playView = findViewById(R.id.activity_album_details_play);
         playView.setOnClickListener((view) ->
@@ -177,19 +173,19 @@ public class AlbumDetailsActivity extends AppCompatActivity implements MediaDb.U
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            Audio audio = getAudios(mMediaDb, mAlbum).get(position);
+            Audio audio = mAlbum.getAudios().get(position);
             mMediaDb.loadData(audio); // TODO Where should we call this? In bind()?
             ((AudioViewHolder) holder).bind(mAlbum, audio);
         }
 
         @Override
         public int getItemCount() {
-            return getAudios(mMediaDb, mAlbum).size();
+            return mAlbum.getAudios().size();
         }
 
         @Override
         public long getItemId(int position) {
-            return getAudios(mMediaDb, mAlbum).get(position).getId();
+            return mAlbum.getAudios().get(position).getId();
         }
 
         @Override
@@ -216,16 +212,5 @@ public class AlbumDetailsActivity extends AppCompatActivity implements MediaDb.U
             itemView.setOnClickListener((view) ->
                     AudioPlayerActivity.start(view.getContext(), audio));
         }
-    }
-
-    // TODO Move this to DB (and sort out dependencies once)
-    private static @NonNull List<Audio> getAudios(@NonNull MediaDb mediaDb, @NonNull Album album) {
-        List<Audio> audios = new ArrayList<>();
-        for (Audio audio : mediaDb.getAudios()) {
-            if (album.equals(audio.getAlbum())) {
-                audios.add(audio);
-            }
-        }
-        return audios;
     }
 }
