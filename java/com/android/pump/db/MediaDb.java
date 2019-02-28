@@ -263,12 +263,19 @@ public class MediaDb implements MediaProvider {
         if (artist.isLoaded()) return;
 
         mExecutor.execute(() -> {
-            boolean updated = mAudioStore.loadData(artist);
+            try {
+                boolean updated = mDataProvider.populateArtist(artist);
 
-            artist.setLoaded();
-            if (updated) {
-                Executors.uiThreadExecutor().execute(() -> updateArtist(artist));
+                updated |= mAudioStore.loadData(artist);
+
+                artist.setLoaded();
+                if (updated) {
+                    Executors.uiThreadExecutor().execute(() -> updateArtist(artist));
+                }
+            } catch (IOException e) {
+                Clog.e(TAG, "Search for " + artist + " failed", e);
             }
+
         });
     }
 

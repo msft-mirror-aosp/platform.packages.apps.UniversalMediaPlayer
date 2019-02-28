@@ -16,6 +16,8 @@
 
 package com.android.pump.db;
 
+import android.net.Uri;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,6 +32,8 @@ public class Artist {
 
     // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private String mName;
+    private String mDescription;
+    private Uri mHeadshotUri;
     private final List<Album> mAlbums = new ArrayList<>();
     private final List<Audio> mAudios = new ArrayList<>();
     private boolean mLoaded;
@@ -52,6 +56,30 @@ public class Artist {
 
     public @NonNull List<Audio> getAudios() {
         return Collections.unmodifiableList(mAudios);
+    }
+
+    public @Nullable Uri getHeadshotUri() {
+        return mHeadshotUri;
+    }
+
+    public boolean setHeadshotUri(@NonNull Uri headshotUri) {
+        if (headshotUri.equals(mHeadshotUri)) {
+            return false;
+        }
+        mHeadshotUri = headshotUri;
+        return true;
+    }
+
+    public @Nullable String getDescription() {
+        return mDescription;
+    }
+
+    public boolean setDescription(@NonNull String description) {
+        if (description.equals(mDescription)) {
+            return false;
+        }
+        mDescription = description;
+        return true;
     }
 
     boolean setName(@NonNull String name) {

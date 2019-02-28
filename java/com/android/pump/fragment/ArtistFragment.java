@@ -153,16 +153,20 @@ public class ArtistFragment extends Fragment {
             ImageView imageView = itemView.findViewById(R.id.artist_image);
             TextView nameView = itemView.findViewById(R.id.artist_name);
 
-            // TODO This should be artist head shot rather than album art
-            Uri albumArtUri = null;
-            List<Album> albums = artist.getAlbums();
-            for (Album album : albums) {
-                if (album.getAlbumArtUri() != null) {
-                    albumArtUri = album.getAlbumArtUri();
-                    break;
+            Uri artUri = null;
+            if (artist.getHeadshotUri() == null) {
+                // Fallback to album art
+                List<Album> albums = artist.getAlbums();
+                for (Album album : albums) {
+                    if (album.getAlbumArtUri() != null) {
+                        artUri = album.getAlbumArtUri();
+                        break;
+                    }
                 }
+            } else {
+                artUri = artist.getHeadshotUri();
             }
-            imageView.setImageURI(albumArtUri);
+            imageView.setImageURI(artUri);
             nameView.setText(artist.getName());
 
             itemView.setOnClickListener((view) ->
