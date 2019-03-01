@@ -56,14 +56,12 @@ import com.google.android.material.tabs.TabLayout;
 public class PumpActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
     private static final int REQUIRED_PERMISSIONS_REQUEST_CODE = 42;
 
-    // TODO Remove ugly PERMISSION_PAGES hack
-    private static final Pages PERMISSION_PAGES =
-        new Pages(R.id.menu_home, new Page[] {
-            new Page(PermissionFragment::newInstance, "Permission")
-        });
+    // TODO The following should be a non-static member
+    private static boolean sIsMissingPermissions = true;
+
     private static final Pages[] PAGES_LIST = {
         new Pages(R.id.menu_home, new Page[] {
-            new Page(HomeFragment::newInstance, "Home")
+            new PermissionPage(HomeFragment::newInstance, "Home")
         }),
         new Pages(R.id.menu_video, new Page[] {
             new Page(MovieFragment::newInstance, "Movies"),
@@ -137,14 +135,8 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // TODO Remove ugly hack
-        if (item.getItemId() == R.id.menu_home && Permissions.isMissingPermissions(this)) {
-            selectPages(item.getTitle(), PERMISSION_PAGES);
-            return true;
-        }
-
         for (Pages pages : PAGES_LIST) {
-            if (pages.id == item.getItemId()) {
+            if (pages.getId() == item.getItemId()) {
                 selectPages(item.getTitle(), pages);
                 return true;
             }
@@ -158,8 +150,6 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         if (requestCode == REQUIRED_PERMISSIONS_REQUEST_CODE) {
             if (Permissions.isGranted(permissions, grantResults)) {
                 initialize();
-                // TODO Remove ugly hack
-                mBottomNavigationView.setSelectedItemId(R.id.menu_home);
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -167,6 +157,8 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     }
 
     private void initialize() {
+        sIsMissingPermissions = false;
+        mActivityPagerAdapter.notifyDataSetChanged();
         Globals.getMediaDb(this).load();
     }
 
@@ -191,32 +183,32 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     private static class ActivityPagerAdapter extends FragmentPagerAdapter {
         private Pages mPages;
 
-        private ActivityPagerAdapter(@NonNull FragmentManager fm) {
+        ActivityPagerAdapter(@NonNull FragmentManager fm) {
             super(fm);
         }
 
-        private void setPages(@NonNull Pages pages) {
+        void setPages(@NonNull Pages pages) {
             mPages = pages;
             notifyDataSetChanged();
         }
 
-        private @Nullable Pages getPages() {
+        @Nullable Pages getPages() {
             return mPages;
         }
 
         @Override
         public int getCount() {
-            return mPages.pages.length;
+            return mPages.getPages().length;
         }
 
         @Override
         public @NonNull Fragment getItem(int position) {
-            return mPages.pages[position].pageCreator.newInstance();
+            return mPages.getPages()[position].createFragment();
         }
 
         @Override
         public long getItemId(int position) {
-            return mPages.pages[position].id;
+            return mPages.getPages()[position].getId();
         }
 
         @Override
@@ -226,40 +218,87 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
         @Override
         public @NonNull CharSequence getPageTitle(int position) {
-            return mPages.pages[position].title;
+            return mPages.getPages()[position].getTitle();
         }
     }
 
     private static class Page {
-        private static int sid;
-        private Page(@NonNull PageCreator pageCreator, @NonNull String title) {
-            this.id = sid++;
-            this.pageCreator = pageCreator;
-            this.title = title;
+        private static int sId;
+
+        private final int mId;
+        private final PageCreator mPageCreator;
+        private final String mTitle;
+
+        Page(@NonNull PageCreator pageCreator, @NonNull String title) {
+            mId = sId++;
+            mPageCreator = pageCreator;
+            mTitle = title;
         }
 
-        private final int id;
-        private final PageCreator pageCreator;
-        private final String title;
+        int getId() {
+            return mId;
+        }
+
+        @NonNull Fragment createFragment() {
+            return mPageCreator.newInstance();
+        }
+
+        @NonNull String getTitle() {
+            return mTitle;
+        }
     }
 
     private static class Pages {
-        private Pages(@IdRes int id, @NonNull Page[] pages) {
-            this.id = id;
-            this.pages = pages;
+        private final int mId;
+        private final Page[] mPages;
+
+        private int mCurrent;
+
+        Pages(@IdRes int id, @NonNull Page[] pages) {
+            mId = id;
+            mPages = pages;
         }
 
-        private final int id;
-        private final Page[] pages;
-
-        private int current;
-
-        private void setCurrent(int current) {
-            this.current = current;
+        int getId() {
+            return mId;
         }
 
-        private int getCurrent() {
-            return current;
+        @NonNull Page[] getPages() {
+            return mPages;
+        }
+
+        void setCurrent(int current) {
+            mCurrent = current;
+        }
+
+        int getCurrent() {
+            return mCurrent;
+        }
+    }
+
+    private static class PermissionPage extends Page {
+        PermissionPage(@NonNull PageCreator pageCreator, @NonNull String title) {
+            super(pageCreator, title);
+        }
+
+        @Override
+        int getId() {
+            if (isMissingPermissions()) {
+                return ~super.getId();
+            }
+            return super.getId();
+        }
+
+        @Override
+        @NonNull Fragment createFragment() {
+            if (isMissingPermissions()) {
+                return PermissionFragment.newInstance();
+            }
+            return super.createFragment();
+        }
+
+        private boolean isMissingPermissions() {
+            return sIsMissingPermissions;
         }
     }
 
