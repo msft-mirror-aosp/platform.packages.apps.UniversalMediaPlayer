@@ -16,7 +16,7 @@
 
 package com.android.pump.activity;
 
-import android.content.pm.PackageManager;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,8 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -45,9 +43,11 @@ import com.android.pump.fragment.GenreFragment;
 import com.android.pump.fragment.HomeFragment;
 import com.android.pump.fragment.MovieFragment;
 import com.android.pump.fragment.OtherFragment;
+import com.android.pump.fragment.PermissionFragment;
 import com.android.pump.fragment.PlaylistFragment;
 import com.android.pump.fragment.SeriesFragment;
 import com.android.pump.util.Globals;
+import com.android.pump.util.Permissions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
 import com.google.android.material.tabs.TabLayout;
@@ -55,12 +55,12 @@ import com.google.android.material.tabs.TabLayout;
 @UiThread
 public class PumpActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
     private static final int REQUIRED_PERMISSIONS_REQUEST_CODE = 42;
-    private static final String[] REQUIRED_PERMISSIONS = {
-        android.Manifest.permission.INTERNET,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
 
+    // TODO Remove ugly PERMISSION_PAGES hack
+    private static final Pages PERMISSION_PAGES =
+        new Pages(R.id.menu_home, new Page[] {
+            new Page(PermissionFragment::newInstance, "Permission")
+        });
     private static final Pages[] PAGES_LIST = {
         new Pages(R.id.menu_home, new Page[] {
             new Page(HomeFragment::newInstance, "Home")
@@ -91,6 +91,10 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     private TabLayout mTabLayout;
     private BottomNavigationView mBottomNavigationView;
 
+    public static void requestPermissions(@NonNull Activity activity) {
+        Permissions.requestMissingPermissions(activity, REQUIRED_PERMISSIONS_REQUEST_CODE);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +115,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         mViewPager.setAdapter(mActivityPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        if (!requestMissingPermissions()) {
+        if (!Permissions.isMissingPermissions(this)) {
             initialize();
         }
     }
@@ -133,6 +137,12 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // TODO Remove ugly hack
+        if (item.getItemId() == R.id.menu_home && Permissions.isMissingPermissions(this)) {
+            selectPages(item.getTitle(), PERMISSION_PAGES);
+            return true;
+        }
+
         for (Pages pages : PAGES_LIST) {
             if (pages.id == item.getItemId()) {
                 selectPages(item.getTitle(), pages);
@@ -146,20 +156,10 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         if (requestCode == REQUIRED_PERMISSIONS_REQUEST_CODE) {
-            boolean granted = true;
-            if (grantResults.length == 0) {
-                granted = false;
-            } else {
-                for (int grantResult : grantResults) {
-                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                        granted = false;
-                    }
-                }
-            }
-            if (!granted) {
-                finish();
-            } else {
+            if (Permissions.isGranted(permissions, grantResults)) {
                 initialize();
+                // TODO Remove ugly hack
+                mBottomNavigationView.setSelectedItemId(R.id.menu_home);
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -168,25 +168,6 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
     private void initialize() {
         Globals.getMediaDb(this).load();
-    }
-
-    private boolean requestMissingPermissions() {
-        if (isMissingPermissions()) {
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS,
-                    REQUIRED_PERMISSIONS_REQUEST_CODE);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isMissingPermissions() {
-        for (String permission : REQUIRED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(this, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void selectPages(@NonNull CharSequence title, @NonNull Pages pages) {
