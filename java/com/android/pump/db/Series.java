@@ -88,16 +88,16 @@ public class Series {
         return mEpisodes.add(episode);
     }
 
-    public boolean setDescription(String description) {
+    public @Nullable String getDescription() {
+        return mDescription;
+    }
+
+    public boolean setDescription(@NonNull String description) {
         if (description.equals(mDescription)) {
             return false;
         }
         mDescription = description;
         return true;
-    }
-
-    public @Nullable String getDescription() {
-        return mDescription;
     }
 
     boolean isLoaded() {

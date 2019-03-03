@@ -31,6 +31,7 @@ public class Artist {
     // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private String mName;
     private final List<Album> mAlbums = new ArrayList<>();
+    private final List<Audio> mAudios = new ArrayList<>();
     private boolean mLoaded;
 
     Artist(long id) {
@@ -49,6 +50,10 @@ public class Artist {
         return Collections.unmodifiableList(mAlbums);
     }
 
+    public @NonNull List<Audio> getAudios() {
+        return Collections.unmodifiableList(mAudios);
+    }
+
     boolean setName(@NonNull String name) {
         if (name.equals(mName)) {
             return false;
@@ -62,6 +67,13 @@ public class Artist {
             return false;
         }
         return mAlbums.add(album);
+    }
+
+    boolean addAudio(@NonNull Audio audio) {
+        if (mAudios.contains(audio)) {
+            return false;
+        }
+        return mAudios.add(audio);
     }
 
     boolean isLoaded() {
