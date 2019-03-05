@@ -209,7 +209,7 @@ public class GenreDetailsActivity extends AppCompatActivity implements MediaDb.U
             imageView.setImageURI(album == null ? null : album.getAlbumArtUri());
             titleView.setText(audio.getTitle());
             Artist artist = audio.getArtist();
-            artistView.setText(artist.getName());
+            artistView.setText(artist == null ? null : artist.getName());
 
             itemView.setOnClickListener((view) ->
                     AudioPlayerActivity.start(view.getContext(), audio));
