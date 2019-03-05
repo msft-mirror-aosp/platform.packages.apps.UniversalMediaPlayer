@@ -149,17 +149,11 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MediaD
 
         // TODO Find a better way to handle 2x2 art
         Set<Uri> albumArtUris = new HashSet<>();
-        Set<String> artistNames = new HashSet<>();
         List<Audio> audios = mPlaylist.getAudios();
         for (Audio audio : audios) {
             Album album = audio.getAlbum();
             if (album != null && album.getAlbumArtUri() != null) {
                 albumArtUris.add(album.getAlbumArtUri());
-            }
-
-            Artist artist = audio.getArtist();
-            if (artist != null && artist.getName() != null) {
-                artistNames.add(artist.getName());
             }
         }
 
