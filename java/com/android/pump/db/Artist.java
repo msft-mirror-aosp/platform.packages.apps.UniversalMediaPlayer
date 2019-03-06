@@ -62,16 +62,16 @@ public class Artist {
         return mHeadshotUri;
     }
 
+    public @Nullable String getDescription() {
+        return mDescription;
+    }
+
     public boolean setHeadshotUri(@NonNull Uri headshotUri) {
         if (headshotUri.equals(mHeadshotUri)) {
             return false;
         }
         mHeadshotUri = headshotUri;
         return true;
-    }
-
-    public @Nullable String getDescription() {
-        return mDescription;
     }
 
     public boolean setDescription(@NonNull String description) {
