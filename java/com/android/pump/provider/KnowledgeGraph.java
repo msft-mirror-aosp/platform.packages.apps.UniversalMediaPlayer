@@ -17,12 +17,15 @@
 package com.android.pump.provider;
 
 import android.net.Uri;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.android.pump.db.Artist;
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.Episode;
 import com.android.pump.db.Movie;
@@ -30,13 +33,13 @@ import com.android.pump.db.Series;
 import com.android.pump.util.Clog;
 import com.android.pump.util.Http;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 @WorkerThread
 public final class KnowledgeGraph implements DataProvider {
@@ -52,14 +55,38 @@ public final class KnowledgeGraph implements DataProvider {
     }
 
     @Override
+    public boolean populateArtist(@NonNull Artist artist) throws IOException {
+        boolean updated = false;
+        // Artist may be of type "Person" or "MusicGroup"
+        JSONObject result = getResultFromKG(artist.getName(), "Person");
+        if (result == null) {
+            result = getResultFromKG(artist.getName(), "MusicGroup");
+        }
+
+        Pair<String, String> metadata = getMetadataFromResult(result);
+        if (metadata != null) {
+            if (metadata.first != null) {
+                updated |= artist.setHeadshotUri(Uri.parse(metadata.first));
+            }
+            if (metadata.second != null) {
+                updated |= artist.setDescription(metadata.second);
+            }
+        }
+        return updated;
+    }
+
+    @Override
     public boolean populateMovie(@NonNull Movie movie) throws IOException {
         boolean updated = false;
-        Pair<String, String> metadata = getMetadata(movie.getTitle(), "Movie");
-        if (metadata.first != null) {
-            updated |= movie.setPosterUri(Uri.parse(metadata.first));
-        }
-        if (metadata.second != null) {
-            updated |= movie.setDescription(metadata.second);
+        Pair<String, String> metadata = getMetadataFromResult(
+                getResultFromKG(movie.getTitle(), "Movie"));
+        if (metadata != null) {
+            if (metadata.first != null) {
+                updated |= movie.setPosterUri(Uri.parse(metadata.first));
+            }
+            if (metadata.second != null) {
+                updated |= movie.setDescription(metadata.second);
+            }
         }
         return updated;
     }
@@ -67,12 +94,15 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateSeries(@NonNull Series series) throws IOException {
         boolean updated = false;
-        Pair<String, String> metadata = getMetadata(series.getTitle(), "TVSeries");
-        if (metadata.first != null) {
-            updated |= series.setPosterUri(Uri.parse(metadata.first));
-        }
-        if (metadata.second != null) {
-            updated |= series.setDescription(metadata.second);
+        Pair<String, String> metadata = getMetadataFromResult(
+                getResultFromKG(series.getTitle(), "TVSeries"));
+        if (metadata != null) {
+            if (metadata.first != null) {
+                updated |= series.setPosterUri(Uri.parse(metadata.first));
+            }
+            if (metadata.second != null) {
+                updated |= series.setDescription(metadata.second);
+            }
         }
         return updated;
     }
@@ -80,24 +110,44 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateEpisode(@NonNull Episode episode) throws IOException {
         boolean updated = false;
-        Pair<String, String> metadata = getMetadata(episode.getTitle(), "TVEpisode");
-        if (metadata.first != null) {
-            updated |= episode.setPosterUri(Uri.parse(metadata.first));
-        }
-        if (metadata.second != null) {
-            updated |= episode.setDescription(metadata.second);
+        Pair<String, String> metadata = getMetadataFromResult(
+                getResultFromKG(episode.getTitle(), "TVEpisode"));
+        if (metadata != null) {
+            if (metadata.first != null) {
+                updated |= episode.setPosterUri(Uri.parse(metadata.first));
+            }
+            if (metadata.second != null) {
+                updated |= episode.setDescription(metadata.second);
+            }
         }
         return updated;
     }
 
-    private Pair<String, String> getMetadata(String title, String type) throws IOException {
-        String imageUrl = null;
-        String description = null;
+    private JSONObject getResultFromKG(String title, String type) throws IOException {
         try {
             JSONObject root = (JSONObject) getContent(getContentUri(title, type));
             JSONArray items = root.getJSONArray("itemListElement");
             JSONObject item = (JSONObject) items.get(0);
             JSONObject result = item.getJSONObject("result");
+            if (!title.equals(result.getString("name"))) {
+                return null;
+            }
+            return result;
+        } catch (JSONException e) {
+            Clog.w(TAG, "Failed to find search result", e);
+            return null;
+        }
+    }
+
+    private Pair<String, String> getMetadataFromResult(@NonNull JSONObject result)
+            throws IOException {
+        if (result == null) {
+            throw new IOException("Failed to find search result");
+        }
+
+        String imageUrl = null;
+        String description = null;
+        try {
             JSONObject image = result.optJSONObject("image");
             if (image != null) {
                 String url = image.getString("contentUrl");
@@ -117,7 +167,7 @@ public final class KnowledgeGraph implements DataProvider {
         return new Pair<>(imageUrl, description);
     }
 
-    private static @NonNull Uri getContentUri(@NonNull String title, @NonNull String type) {
+    private static @NonNull Uri getContentUri(@NonNull String title, @Nullable String type) {
         Uri.Builder ub = new Uri.Builder();
         ub.scheme("https");
         ub.authority("kgsearch.googleapis.com");

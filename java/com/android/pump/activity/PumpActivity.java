@@ -16,7 +16,7 @@
 
 package com.android.pump.activity;
 
-import android.content.pm.PackageManager;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,8 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -45,9 +43,11 @@ import com.android.pump.fragment.GenreFragment;
 import com.android.pump.fragment.HomeFragment;
 import com.android.pump.fragment.MovieFragment;
 import com.android.pump.fragment.OtherFragment;
+import com.android.pump.fragment.PermissionFragment;
 import com.android.pump.fragment.PlaylistFragment;
 import com.android.pump.fragment.SeriesFragment;
 import com.android.pump.util.Globals;
+import com.android.pump.util.Permissions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
 import com.google.android.material.tabs.TabLayout;
@@ -55,15 +55,13 @@ import com.google.android.material.tabs.TabLayout;
 @UiThread
 public class PumpActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
     private static final int REQUIRED_PERMISSIONS_REQUEST_CODE = 42;
-    private static final String[] REQUIRED_PERMISSIONS = {
-        android.Manifest.permission.INTERNET,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
+
+    // TODO The following should be a non-static member
+    private static boolean sIsMissingPermissions = true;
 
     private static final Pages[] PAGES_LIST = {
         new Pages(R.id.menu_home, new Page[] {
-            new Page(HomeFragment::newInstance, "Home")
+            new PermissionPage(HomeFragment::newInstance, "Home")
         }),
         new Pages(R.id.menu_video, new Page[] {
             new Page(MovieFragment::newInstance, "Movies"),
@@ -91,6 +89,10 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     private TabLayout mTabLayout;
     private BottomNavigationView mBottomNavigationView;
 
+    public static void requestPermissions(@NonNull Activity activity) {
+        Permissions.requestMissingPermissions(activity, REQUIRED_PERMISSIONS_REQUEST_CODE);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +113,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         mViewPager.setAdapter(mActivityPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        if (!requestMissingPermissions()) {
+        if (!Permissions.isMissingPermissions(this)) {
             initialize();
         }
     }
@@ -134,7 +136,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         for (Pages pages : PAGES_LIST) {
-            if (pages.id == item.getItemId()) {
+            if (pages.getId() == item.getItemId()) {
                 selectPages(item.getTitle(), pages);
                 return true;
             }
@@ -146,19 +148,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         if (requestCode == REQUIRED_PERMISSIONS_REQUEST_CODE) {
-            boolean granted = true;
-            if (grantResults.length == 0) {
-                granted = false;
-            } else {
-                for (int grantResult : grantResults) {
-                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                        granted = false;
-                    }
-                }
-            }
-            if (!granted) {
-                finish();
-            } else {
+            if (Permissions.isGranted(permissions, grantResults)) {
                 initialize();
             }
         } else {
@@ -167,26 +157,9 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     }
 
     private void initialize() {
+        sIsMissingPermissions = false;
+        mActivityPagerAdapter.notifyDataSetChanged();
         Globals.getMediaDb(this).load();
-    }
-
-    private boolean requestMissingPermissions() {
-        if (isMissingPermissions()) {
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS,
-                    REQUIRED_PERMISSIONS_REQUEST_CODE);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isMissingPermissions() {
-        for (String permission : REQUIRED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(this, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void selectPages(@NonNull CharSequence title, @NonNull Pages pages) {
@@ -210,32 +183,32 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     private static class ActivityPagerAdapter extends FragmentPagerAdapter {
         private Pages mPages;
 
-        private ActivityPagerAdapter(@NonNull FragmentManager fm) {
+        ActivityPagerAdapter(@NonNull FragmentManager fm) {
             super(fm);
         }
 
-        private void setPages(@NonNull Pages pages) {
+        void setPages(@NonNull Pages pages) {
             mPages = pages;
             notifyDataSetChanged();
         }
 
-        private @Nullable Pages getPages() {
+        @Nullable Pages getPages() {
             return mPages;
         }
 
         @Override
         public int getCount() {
-            return mPages.pages.length;
+            return mPages.getPages().length;
         }
 
         @Override
         public @NonNull Fragment getItem(int position) {
-            return mPages.pages[position].pageCreator.newInstance();
+            return mPages.getPages()[position].createFragment();
         }
 
         @Override
         public long getItemId(int position) {
-            return mPages.pages[position].id;
+            return mPages.getPages()[position].getId();
         }
 
         @Override
@@ -245,40 +218,87 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
         @Override
         public @NonNull CharSequence getPageTitle(int position) {
-            return mPages.pages[position].title;
+            return mPages.getPages()[position].getTitle();
         }
     }
 
     private static class Page {
-        private static int sid;
-        private Page(@NonNull PageCreator pageCreator, @NonNull String title) {
-            this.id = sid++;
-            this.pageCreator = pageCreator;
-            this.title = title;
+        private static int sId;
+
+        private final int mId;
+        private final PageCreator mPageCreator;
+        private final String mTitle;
+
+        Page(@NonNull PageCreator pageCreator, @NonNull String title) {
+            mId = sId++;
+            mPageCreator = pageCreator;
+            mTitle = title;
         }
 
-        private final int id;
-        private final PageCreator pageCreator;
-        private final String title;
+        int getId() {
+            return mId;
+        }
+
+        @NonNull Fragment createFragment() {
+            return mPageCreator.newInstance();
+        }
+
+        @NonNull String getTitle() {
+            return mTitle;
+        }
     }
 
     private static class Pages {
-        private Pages(@IdRes int id, @NonNull Page[] pages) {
-            this.id = id;
-            this.pages = pages;
+        private final int mId;
+        private final Page[] mPages;
+
+        private int mCurrent;
+
+        Pages(@IdRes int id, @NonNull Page[] pages) {
+            mId = id;
+            mPages = pages;
         }
 
-        private final int id;
-        private final Page[] pages;
-
-        private int current;
-
-        private void setCurrent(int current) {
-            this.current = current;
+        int getId() {
+            return mId;
         }
 
-        private int getCurrent() {
-            return current;
+        @NonNull Page[] getPages() {
+            return mPages;
+        }
+
+        void setCurrent(int current) {
+            mCurrent = current;
+        }
+
+        int getCurrent() {
+            return mCurrent;
+        }
+    }
+
+    private static class PermissionPage extends Page {
+        PermissionPage(@NonNull PageCreator pageCreator, @NonNull String title) {
+            super(pageCreator, title);
+        }
+
+        @Override
+        int getId() {
+            if (isMissingPermissions()) {
+                return ~super.getId();
+            }
+            return super.getId();
+        }
+
+        @Override
+        @NonNull Fragment createFragment() {
+            if (isMissingPermissions()) {
+                return PermissionFragment.newInstance();
+            }
+            return super.createFragment();
+        }
+
+        private boolean isMissingPermissions() {
+            return sIsMissingPermissions;
         }
     }
 
