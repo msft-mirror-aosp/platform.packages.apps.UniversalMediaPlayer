@@ -21,7 +21,7 @@
 
     <color name="colorPrimary">#313235</color>
     <color name="colorPrimaryDark">#313235</color>
-    <color name="colorAccent">#ff0000</color>
+    <color name="colorAccent">#669df6</color>
     <color name="colorControlNormal">#f8f9fa</color>
     <color name="colorControlActivated">#669df6</color>
     <color name="colorControlHighlight">#ff0000</color>
