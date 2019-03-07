@@ -111,7 +111,7 @@ public final class KnowledgeGraph implements DataProvider {
     public boolean populateEpisode(@NonNull Episode episode) throws IOException {
         boolean updated = false;
         Pair<String, String> metadata = getMetadataFromResult(
-                getResultFromKG(episode.getTitle(), "TVEpisode"));
+                getResultFromKG(episode.getSeries().getTitle(), "TVEpisode"));
         if (metadata != null) {
             if (metadata.first != null) {
                 updated |= episode.setPosterUri(Uri.parse(metadata.first));

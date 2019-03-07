@@ -94,10 +94,6 @@ public class Episode extends Video {
         return true;
     }
 
-    public @NonNull String getTitle() {
-        return mSeries.getTitle();
-    }
-
     boolean isLoaded() {
         return mLoaded;
     }

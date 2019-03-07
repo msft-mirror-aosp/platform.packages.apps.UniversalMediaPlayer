@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.android.pump.util.Collections.binarySearch;
+
 @AnyThread
 public class Series {
     private final String mTitle;
@@ -33,8 +35,8 @@ public class Series {
 
     // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private Uri mPosterUri;
-    private final List<Episode> mEpisodes = new ArrayList<>();
     private String mDescription;
+    private final List<List<Episode>> mSeasons = new ArrayList<>();
     private boolean mLoaded;
 
     Series(@NonNull String title) {
@@ -77,17 +79,6 @@ public class Series {
         return true;
     }
 
-    public @NonNull List<Episode> getEpisodes() {
-        return Collections.unmodifiableList(mEpisodes);
-    }
-
-    boolean addEpisode(@NonNull Episode episode) {
-        if (mEpisodes.contains(episode)) {
-            return false;
-        }
-        return mEpisodes.add(episode);
-    }
-
     public @Nullable String getDescription() {
         return mDescription;
     }
@@ -97,6 +88,33 @@ public class Series {
             return false;
         }
         mDescription = description;
+        return true;
+    }
+
+    public @NonNull List<List<Episode>> getSeasons() {
+        return Collections.unmodifiableList(mSeasons);
+    }
+
+    boolean addEpisode(@NonNull Episode episode) {
+        int seriesLocation = binarySearch(mSeasons, episode.getSeason(),
+                (season) -> season.get(0).getSeason());
+        if (seriesLocation >= 0) {
+            List<Episode> series = mSeasons.get(seriesLocation);
+            int episodeLocation = binarySearch(series, episode.getEpisode(), Episode::getEpisode);
+            if (episodeLocation >= 0) {
+                if (episode.equals(series.get(episodeLocation))) {
+                    return false;
+                }
+                // TODO(b/127524752) This should kind of be okay (i.e. handle gracefully)
+                throw new IllegalStateException("Two episodes with the same season & episode #");
+            } else {
+                series.add(~episodeLocation, episode);
+            }
+        } else {
+            List<Episode> series = new ArrayList<>();
+            series.add(episode);
+            mSeasons.add(~seriesLocation, series);
+        }
         return true;
     }
 

@@ -140,7 +140,8 @@ public class GenreDetailsActivity extends AppCompatActivity implements MediaDb.U
 
         // TODO imageView.setImageURI(???);
         nameView.setText(mGenre.getName());
-        countView.setText(mGenre.getAudios().size() + " songs"); // TODO Move to resource
+        // TODO(b/123037263) I18n -- Move to resource
+        countView.setText(mGenre.getAudios().size() + " songs");
 
         ImageView playView = findViewById(R.id.activity_genre_details_play);
         playView.setOnClickListener((view) ->

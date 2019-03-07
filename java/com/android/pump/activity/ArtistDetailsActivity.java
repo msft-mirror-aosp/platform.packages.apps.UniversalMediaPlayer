@@ -151,7 +151,8 @@ public class ArtistDetailsActivity extends AppCompatActivity implements MediaDb.
         }
         imageView.setImageURI(albumArtUri);
         nameView.setText(mArtist.getName());
-        countView.setText(mArtist.getAudios().size() + " songs"); // TODO Move to resource
+        // TODO(b/123037263) I18n -- Move to resource
+        countView.setText(mArtist.getAudios().size() + " songs");
 
         ImageView playView = findViewById(R.id.activity_artist_details_play);
         playView.setOnClickListener((view) ->
