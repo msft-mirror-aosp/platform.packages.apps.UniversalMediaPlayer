@@ -60,7 +60,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
     private static final Pages[] PAGES_LIST = {
         new Pages(R.id.menu_home, new Page[] {
-            new PermissionPage(HomeFragment::newInstance, "Home")
+            new Page(HomeFragment::newInstance, "Home")
         }),
         new Pages(R.id.menu_video, new Page[] {
             new Page(MovieFragment::newInstance, "Movies"),
@@ -220,7 +220,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     }
 
     private static class Page {
-        private static int sId;
+        private static int sId = 0;
 
         private final int mId;
         private final PageCreator mPageCreator;
@@ -233,15 +233,25 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         }
 
         int getId() {
+            if (isMissingPermissions()) {
+                return ~mId;
+            }
             return mId;
         }
 
         @NonNull Fragment createFragment() {
+            if (isMissingPermissions()) {
+                return PermissionFragment.newInstance();
+            }
             return mPageCreator.newInstance();
         }
 
         @NonNull String getTitle() {
             return mTitle;
+        }
+
+        private boolean isMissingPermissions() {
+            return sIsMissingPermissions;
         }
     }
 
@@ -270,32 +280,6 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
         int getCurrent() {
             return mCurrent;
-        }
-    }
-
-    private static class PermissionPage extends Page {
-        PermissionPage(@NonNull PageCreator pageCreator, @NonNull String title) {
-            super(pageCreator, title);
-        }
-
-        @Override
-        int getId() {
-            if (isMissingPermissions()) {
-                return ~super.getId();
-            }
-            return super.getId();
-        }
-
-        @Override
-        @NonNull Fragment createFragment() {
-            if (isMissingPermissions()) {
-                return PermissionFragment.newInstance();
-            }
-            return super.createFragment();
-        }
-
-        private boolean isMissingPermissions() {
-            return sIsMissingPermissions;
         }
     }
 
