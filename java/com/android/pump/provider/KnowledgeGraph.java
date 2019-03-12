@@ -56,15 +56,8 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateArtist(@NonNull Artist artist) throws IOException {
         boolean updated = false;
-        // TODO: Merge multiple types into one request.
         // Artist may be of type "Person" or "MusicGroup"
-        JSONObject result = getResultFromKG(artist.getName(), "Person");
-        if (result == null) {
-            result = getResultFromKG(artist.getName(), "MusicGroup");
-        }
-        if (result == null) {
-            throw new IOException("Failed to find search result");
-        }
+        JSONObject result = getResultFromKG(artist.getName(), "Person", "MusicGroup");
 
         String imageUrl = getImageUrl(result);
         if (imageUrl != null) {
@@ -86,9 +79,6 @@ public final class KnowledgeGraph implements DataProvider {
 
         boolean updated = false;
         JSONObject result = getResultFromKG(album.getTitle(), "MusicAlbum");
-        if (result == null) {
-            throw new IOException("Failed to find search result");
-        }
 
         // TODO: (b/128383917) Investigate how to filter search results
         String imageUrl = getImageUrl(result);
@@ -106,9 +96,6 @@ public final class KnowledgeGraph implements DataProvider {
     public boolean populateMovie(@NonNull Movie movie) throws IOException {
         boolean updated = false;
         JSONObject result = getResultFromKG(movie.getTitle(), "Movie");
-        if (result == null) {
-            throw new IOException("Failed to find search result");
-        }
 
         String imageUrl = getImageUrl(result);
         if (imageUrl != null) {
@@ -125,9 +112,6 @@ public final class KnowledgeGraph implements DataProvider {
     public boolean populateSeries(@NonNull Series series) throws IOException {
         boolean updated = false;
         JSONObject result = getResultFromKG(series.getTitle(), "TVSeries");
-        if (result == null) {
-            throw new IOException("Failed to find search result");
-        }
 
         String imageUrl = getImageUrl(result);
         if (imageUrl != null) {
@@ -144,9 +128,6 @@ public final class KnowledgeGraph implements DataProvider {
     public boolean populateEpisode(@NonNull Episode episode) throws IOException {
         boolean updated = false;
         JSONObject result = getResultFromKG(episode.getSeries().getTitle(), "TVEpisode");
-        if (result == null) {
-            throw new IOException("Failed to find search result");
-        }
 
         String imageUrl = getImageUrl(result);
         if (imageUrl != null) {
@@ -159,19 +140,18 @@ public final class KnowledgeGraph implements DataProvider {
         return updated;
     }
 
-    private @Nullable JSONObject getResultFromKG(String title, String type) throws IOException {
+    private @NonNull JSONObject getResultFromKG(String title, String... types) throws IOException {
         try {
-            JSONObject root = (JSONObject) getContent(getContentUri(title, type));
+            JSONObject root = (JSONObject) getContent(getContentUri(title, types));
             JSONArray items = root.getJSONArray("itemListElement");
             JSONObject item = (JSONObject) items.get(0);
             JSONObject result = item.getJSONObject("result");
             if (!title.equals(result.getString("name"))) {
-                return null;
+                throw new IOException("Failed to find result for " + title);
             }
             return result;
         } catch (JSONException e) {
-            Clog.w(TAG, "Failed to find search result", e);
-            return null;
+            throw new IOException("Failed to find result for " + title);
         }
     }
 
@@ -215,7 +195,7 @@ public final class KnowledgeGraph implements DataProvider {
         return detailedDescription;
     }
 
-    private static @NonNull Uri getContentUri(@NonNull String title, @Nullable String type) {
+    private static @NonNull Uri getContentUri(@NonNull String title, @NonNull String... types) {
         Uri.Builder ub = new Uri.Builder();
         ub.scheme("https");
         ub.authority("kgsearch.googleapis.com");
@@ -224,7 +204,9 @@ public final class KnowledgeGraph implements DataProvider {
         ub.appendQueryParameter("key", ApiKeys.KG_API);
         ub.appendQueryParameter("limit", "1");
         ub.appendQueryParameter("query", title);
-        ub.appendQueryParameter("types", type);
+        for (String type : types) {
+            ub.appendQueryParameter("types", type);
+        }
         return ub.build();
     }
 
