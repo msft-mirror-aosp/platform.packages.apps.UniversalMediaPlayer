@@ -275,7 +275,6 @@ public class MediaDb implements MediaProvider {
             } catch (IOException e) {
                 Clog.e(TAG, "Search for " + artist + " failed", e);
             }
-
         });
     }
 
@@ -284,11 +283,17 @@ public class MediaDb implements MediaProvider {
         if (album.isLoaded()) return;
 
         mExecutor.execute(() -> {
-            boolean updated = mAudioStore.loadData(album);
+            try {
+                boolean updated = mDataProvider.populateAlbum(album);
 
-            album.setLoaded();
-            if (updated) {
-                Executors.uiThreadExecutor().execute(() -> updateAlbum(album));
+                updated |= mAudioStore.loadData(album);
+
+                album.setLoaded();
+                if (updated) {
+                    Executors.uiThreadExecutor().execute(() -> updateAlbum(album));
+                }
+            } catch (IOException e) {
+                Clog.e(TAG, "Search for " + album + " failed", e);
             }
         });
     }

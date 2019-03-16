@@ -16,7 +16,8 @@
 
 package com.android.pump.activity;
 
-import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -47,21 +49,18 @@ import com.android.pump.fragment.PermissionFragment;
 import com.android.pump.fragment.PlaylistFragment;
 import com.android.pump.fragment.SeriesFragment;
 import com.android.pump.util.Globals;
-import com.android.pump.util.Permissions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener;
 import com.google.android.material.tabs.TabLayout;
 
 @UiThread
 public class PumpActivity extends AppCompatActivity implements OnNavigationItemSelectedListener {
-    private static final int REQUIRED_PERMISSIONS_REQUEST_CODE = 42;
-
     // TODO The following should be a non-static member
     private static boolean sIsMissingPermissions = true;
 
     private static final Pages[] PAGES_LIST = {
         new Pages(R.id.menu_home, new Page[] {
-            new PermissionPage(HomeFragment::newInstance, "Home")
+            new Page(HomeFragment::newInstance, "Home")
         }),
         new Pages(R.id.menu_video, new Page[] {
             new Page(MovieFragment::newInstance, "Movies"),
@@ -82,16 +81,14 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         })
     };
 
+    private boolean mInitialized = false;
+
     private ActivityPagerAdapter mActivityPagerAdapter;
 
     private DrawerLayout mDrawerLayout;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private BottomNavigationView mBottomNavigationView;
-
-    public static void requestPermissions(@NonNull Activity activity) {
-        Permissions.requestMissingPermissions(activity, REQUIRED_PERMISSIONS_REQUEST_CODE);
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,10 +109,13 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         mBottomNavigationView.setSelectedItemId(R.id.menu_home);
         mViewPager.setAdapter(mActivityPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
+    }
 
-        if (!Permissions.isMissingPermissions(this)) {
-            initialize();
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        initialize();
     }
 
     @Override
@@ -144,22 +144,19 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         return false;
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
-        if (requestCode == REQUIRED_PERMISSIONS_REQUEST_CODE) {
-            if (Permissions.isGranted(permissions, grantResults)) {
-                initialize();
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
+    // TODO This should not be public
+    public void initialize() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            if (!mInitialized) {
+                mInitialized = true;
 
-    private void initialize() {
-        sIsMissingPermissions = false;
-        mActivityPagerAdapter.notifyDataSetChanged();
-        Globals.getMediaDb(this).load();
+                sIsMissingPermissions = false;
+                mActivityPagerAdapter.notifyDataSetChanged();
+
+                Globals.getMediaDb(this).load();
+            }
+        }
     }
 
     private void selectPages(@NonNull CharSequence title, @NonNull Pages pages) {
@@ -223,7 +220,7 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
     }
 
     private static class Page {
-        private static int sId;
+        private static int sId = 0;
 
         private final int mId;
         private final PageCreator mPageCreator;
@@ -236,15 +233,25 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
         }
 
         int getId() {
+            if (isMissingPermissions()) {
+                return ~mId;
+            }
             return mId;
         }
 
         @NonNull Fragment createFragment() {
+            if (isMissingPermissions()) {
+                return PermissionFragment.newInstance();
+            }
             return mPageCreator.newInstance();
         }
 
         @NonNull String getTitle() {
             return mTitle;
+        }
+
+        private boolean isMissingPermissions() {
+            return sIsMissingPermissions;
         }
     }
 
@@ -273,32 +280,6 @@ public class PumpActivity extends AppCompatActivity implements OnNavigationItemS
 
         int getCurrent() {
             return mCurrent;
-        }
-    }
-
-    private static class PermissionPage extends Page {
-        PermissionPage(@NonNull PageCreator pageCreator, @NonNull String title) {
-            super(pageCreator, title);
-        }
-
-        @Override
-        int getId() {
-            if (isMissingPermissions()) {
-                return ~super.getId();
-            }
-            return super.getId();
-        }
-
-        @Override
-        @NonNull Fragment createFragment() {
-            if (isMissingPermissions()) {
-                return PermissionFragment.newInstance();
-            }
-            return super.createFragment();
-        }
-
-        private boolean isMissingPermissions() {
-            return sIsMissingPermissions;
         }
     }
 
