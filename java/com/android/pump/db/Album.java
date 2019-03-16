@@ -32,6 +32,7 @@ public class Album {
 
     // TODO(b/123706949) Lock mutable fields to ensure consistent updates
     private String mTitle;
+    private String mDescription;
     private Uri mAlbumArtUri;
     private Artist mArtist;
     private final List<Audio> mAudios = new ArrayList<>();
@@ -61,19 +62,31 @@ public class Album {
         return Collections.unmodifiableList(mAudios);
     }
 
+    public @Nullable String getDescription() {
+        return mDescription;
+    }
+
+    public boolean setAlbumArtUri(@NonNull Uri albumArtUri) {
+        if (albumArtUri.equals(mAlbumArtUri)) {
+            return false;
+        }
+        mAlbumArtUri = albumArtUri;
+        return true;
+    }
+
+    public boolean setDescription(@NonNull String description) {
+        if (description.equals(mDescription)) {
+            return false;
+        }
+        mDescription = description;
+        return true;
+    }
+
     boolean setTitle(@NonNull String title) {
         if (title.equals(mTitle)) {
             return false;
         }
         mTitle = title;
-        return true;
-    }
-
-    boolean setAlbumArtUri(@NonNull Uri albumArtUri) {
-        if (albumArtUri.equals(mAlbumArtUri)) {
-            return false;
-        }
-        mAlbumArtUri = albumArtUri;
         return true;
     }
 

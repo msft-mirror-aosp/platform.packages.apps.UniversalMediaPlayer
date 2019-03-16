@@ -22,6 +22,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
+import com.android.pump.db.Album;
 import com.android.pump.db.Artist;
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.Episode;
@@ -52,6 +53,12 @@ public final class OmdbApi implements DataProvider {
 
     @Override
     public boolean populateArtist(@NonNull Artist artist) throws IOException {
+        // NO-OP
+        return false;
+    }
+
+    @Override
+    public boolean populateAlbum(@NonNull Album album) throws IOException {
         // NO-OP
         return false;
     }

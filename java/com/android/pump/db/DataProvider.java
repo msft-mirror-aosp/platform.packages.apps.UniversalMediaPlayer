@@ -23,6 +23,7 @@ import java.io.IOException;
 // TODO (b/126977959): Split DataProvider into Audio/VideoDataProvider interfaces.
 public interface DataProvider {
     boolean populateArtist(@NonNull Artist artist) throws IOException;
+    boolean populateAlbum(@NonNull Album album) throws IOException;
     boolean populateMovie(@NonNull Movie movie) throws IOException;
     boolean populateSeries(@NonNull Series series) throws IOException;
     boolean populateEpisode(@NonNull Episode episode) throws IOException;

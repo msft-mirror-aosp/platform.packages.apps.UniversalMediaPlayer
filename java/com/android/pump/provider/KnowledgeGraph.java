@@ -17,14 +17,13 @@
 package com.android.pump.provider;
 
 import android.net.Uri;
-import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.android.pump.db.Album;
 import com.android.pump.db.Artist;
 import com.android.pump.db.DataProvider;
 import com.android.pump.db.Episode;
@@ -57,20 +56,48 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateArtist(@NonNull Artist artist) throws IOException {
         boolean updated = false;
+        // TODO: Merge multiple types into one request.
         // Artist may be of type "Person" or "MusicGroup"
         JSONObject result = getResultFromKG(artist.getName(), "Person");
         if (result == null) {
             result = getResultFromKG(artist.getName(), "MusicGroup");
         }
+        if (result == null) {
+            throw new IOException("Failed to find search result");
+        }
 
-        Pair<String, String> metadata = getMetadataFromResult(result);
-        if (metadata != null) {
-            if (metadata.first != null) {
-                updated |= artist.setHeadshotUri(Uri.parse(metadata.first));
-            }
-            if (metadata.second != null) {
-                updated |= artist.setDescription(metadata.second);
-            }
+        String imageUrl = getImageUrl(result);
+        if (imageUrl != null) {
+            updated |= artist.setHeadshotUri(Uri.parse(imageUrl));
+        }
+        String detailedDescription = getDetailedDescription(result);
+        if (detailedDescription != null) {
+            updated |= artist.setDescription(detailedDescription);
+        }
+        return updated;
+    }
+
+    @Override
+    public boolean populateAlbum(@NonNull Album album) throws IOException {
+        // Return if album art is already retrieved from the media file
+        if (album.getAlbumArtUri() != null) {
+            return false;
+        }
+
+        boolean updated = false;
+        JSONObject result = getResultFromKG(album.getTitle(), "MusicAlbum");
+        if (result == null) {
+            throw new IOException("Failed to find search result");
+        }
+
+        // TODO: (b/128383917) Investigate how to filter search results
+        String imageUrl = getImageUrl(result);
+        if (imageUrl != null) {
+            updated |= album.setAlbumArtUri(Uri.parse(imageUrl));
+        }
+        String detailedDescription = getDetailedDescription(result);
+        if (detailedDescription != null) {
+            updated |= album.setDescription(detailedDescription);
         }
         return updated;
     }
@@ -78,15 +105,18 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateMovie(@NonNull Movie movie) throws IOException {
         boolean updated = false;
-        Pair<String, String> metadata = getMetadataFromResult(
-                getResultFromKG(movie.getTitle(), "Movie"));
-        if (metadata != null) {
-            if (metadata.first != null) {
-                updated |= movie.setPosterUri(Uri.parse(metadata.first));
-            }
-            if (metadata.second != null) {
-                updated |= movie.setDescription(metadata.second);
-            }
+        JSONObject result = getResultFromKG(movie.getTitle(), "Movie");
+        if (result == null) {
+            throw new IOException("Failed to find search result");
+        }
+
+        String imageUrl = getImageUrl(result);
+        if (imageUrl != null) {
+            updated |= movie.setPosterUri(Uri.parse(imageUrl));
+        }
+        String detailedDescription = getDetailedDescription(result);
+        if (detailedDescription != null) {
+            updated |= movie.setDescription(detailedDescription);
         }
         return updated;
     }
@@ -94,15 +124,18 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateSeries(@NonNull Series series) throws IOException {
         boolean updated = false;
-        Pair<String, String> metadata = getMetadataFromResult(
-                getResultFromKG(series.getTitle(), "TVSeries"));
-        if (metadata != null) {
-            if (metadata.first != null) {
-                updated |= series.setPosterUri(Uri.parse(metadata.first));
-            }
-            if (metadata.second != null) {
-                updated |= series.setDescription(metadata.second);
-            }
+        JSONObject result = getResultFromKG(series.getTitle(), "TVSeries");
+        if (result == null) {
+            throw new IOException("Failed to find search result");
+        }
+
+        String imageUrl = getImageUrl(result);
+        if (imageUrl != null) {
+            updated |= series.setPosterUri(Uri.parse(imageUrl));
+        }
+        String detailedDescription = getDetailedDescription(result);
+        if (detailedDescription != null) {
+            updated |= series.setDescription(detailedDescription);
         }
         return updated;
     }
@@ -110,20 +143,23 @@ public final class KnowledgeGraph implements DataProvider {
     @Override
     public boolean populateEpisode(@NonNull Episode episode) throws IOException {
         boolean updated = false;
-        Pair<String, String> metadata = getMetadataFromResult(
-                getResultFromKG(episode.getSeries().getTitle(), "TVEpisode"));
-        if (metadata != null) {
-            if (metadata.first != null) {
-                updated |= episode.setPosterUri(Uri.parse(metadata.first));
-            }
-            if (metadata.second != null) {
-                updated |= episode.setDescription(metadata.second);
-            }
+        JSONObject result = getResultFromKG(episode.getSeries().getTitle(), "TVEpisode");
+        if (result == null) {
+            throw new IOException("Failed to find search result");
+        }
+
+        String imageUrl = getImageUrl(result);
+        if (imageUrl != null) {
+            updated |= episode.setPosterUri(Uri.parse(imageUrl));
+        }
+        String detailedDescription = getDetailedDescription(result);
+        if (detailedDescription != null) {
+            updated |= episode.setDescription(detailedDescription);
         }
         return updated;
     }
 
-    private JSONObject getResultFromKG(String title, String type) throws IOException {
+    private @Nullable JSONObject getResultFromKG(String title, String type) throws IOException {
         try {
             JSONObject root = (JSONObject) getContent(getContentUri(title, type));
             JSONArray items = root.getJSONArray("itemListElement");
@@ -139,32 +175,44 @@ public final class KnowledgeGraph implements DataProvider {
         }
     }
 
-    private Pair<String, String> getMetadataFromResult(@NonNull JSONObject result)
-            throws IOException {
-        if (result == null) {
-            throw new IOException("Failed to find search result");
-        }
-
+    private @Nullable String getImageUrl(@NonNull JSONObject result) {
         String imageUrl = null;
-        String description = null;
         try {
-            JSONObject image = result.optJSONObject("image");
-            if (image != null) {
-                String url = image.getString("contentUrl");
+            JSONObject imageObj = result.optJSONObject("image");
+            if (imageObj != null) {
+                String url = imageObj.getString("contentUrl");
                 if (url != null) {
                     // TODO (b/125143807): Remove once HTTPS scheme urls are retrieved.
                     imageUrl = url.replaceFirst("^http://", "https://");
                 }
             }
-            JSONObject detailedDescription = result.optJSONObject("detailedDescription");
-            if (detailedDescription != null) {
-                description = detailedDescription.getString("articleBody");
+        } catch (JSONException e) {
+            Clog.w(TAG, "Failed to parse image url", e);
+        }
+        return imageUrl;
+    }
+
+    private @Nullable String getDescription(@NonNull JSONObject result) {
+        String description = null;
+        try {
+            description = result.getString("description");
+        } catch (JSONException e) {
+            Clog.w(TAG, "Failed to parse description", e);
+        }
+        return description;
+    }
+
+    private @Nullable String getDetailedDescription(@NonNull JSONObject result) {
+        String detailedDescription = null;
+        try {
+            JSONObject descriptionObj = result.optJSONObject("detailedDescription");
+            if (descriptionObj != null) {
+                detailedDescription = descriptionObj.getString("articleBody");
             }
         } catch (JSONException e) {
-            Clog.w(TAG, "Failed to parse search result", e);
-            throw new IOException(e);
+            Clog.w(TAG, "Failed to parse detailed description", e);
         }
-        return new Pair<>(imageUrl, description);
+        return detailedDescription;
     }
 
     private static @NonNull Uri getContentUri(@NonNull String title, @Nullable String type) {
