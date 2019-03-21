@@ -423,14 +423,20 @@ class AudioStore extends ContentObserver {
 
         // TODO Remove hardcoded value
         Uri contentUri = MediaStore.Audio.Artists.Albums.getContentUri("external", artist.getId());
-        String[] projection = {
-            MediaStore.Audio.Media._ID // TODO MediaStore.Audio.Artists.Albums.ALBUM_ID
-        };
+        /*
+         * On some devices MediaStore doesn't use ALBUM_ID as key from Artist to Album, but rather
+         * _ID. In order to support these devices we don't pass a projection, to avoid the
+         * IllegalArgumentException(Invalid column) exception, and then resort to _ID.
+         */
+        String[] projection = null; // { MediaStore.Audio.Artists.Albums.ALBUM_ID };
         Cursor cursor = mContentResolver.query(contentUri, projection, null, null, null);
         if (cursor != null) {
             try {
-                int albumIdColumn = cursor.getColumnIndexOrThrow(
-                        MediaStore.Audio.Media._ID); // TODO MediaStore.Audio.Artists.Albums.ALBUM_ID
+                int albumIdColumn = cursor.getColumnIndex(MediaStore.Audio.Artists.Albums.ALBUM_ID);
+                if (albumIdColumn < 0) {
+                    // On some devices the ALBUM_ID column doesn't exist and _ID is used instead.
+                    albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+                }
 
                 for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                     long albumId = cursor.getLong(albumIdColumn);
