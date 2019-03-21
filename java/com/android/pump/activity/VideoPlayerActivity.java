@@ -38,6 +38,7 @@ import com.android.pump.R;
 import com.android.pump.concurrent.Executors;
 import com.android.pump.db.Video;
 import com.android.pump.util.Clog;
+import com.android.pump.util.IntentUtils;
 
 @UiThread
 public class VideoPlayerActivity extends AppCompatActivity {
@@ -55,7 +56,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setDataAndTypeAndNormalize(uri, video.getMimeType());
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(intent);
+        IntentUtils.startExternalActivity(context, intent);
     }
 
     @Override

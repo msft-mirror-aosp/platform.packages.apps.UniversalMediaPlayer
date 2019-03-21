@@ -34,6 +34,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.pump.R;
 import com.android.pump.activity.PumpActivity;
+import com.android.pump.util.IntentUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -86,7 +87,7 @@ public class PermissionFragment extends Fragment {
                 // system permission settings for this package.
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 intent.setData(Uri.fromParts("package", requireActivity().getPackageName(), null));
-                startActivity(intent);
+                IntentUtils.startExternalActivity(requireContext(), intent);
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);

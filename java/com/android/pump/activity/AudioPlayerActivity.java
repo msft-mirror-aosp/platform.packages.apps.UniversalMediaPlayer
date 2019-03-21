@@ -37,6 +37,7 @@ import com.android.pump.db.Audio;
 import com.android.pump.db.Genre;
 import com.android.pump.db.Playlist;
 import com.android.pump.util.Clog;
+import com.android.pump.util.IntentUtils;
 
 @UiThread
 public class AudioPlayerActivity extends AppCompatActivity {
@@ -51,7 +52,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setDataAndTypeAndNormalize(uri, audio.getMimeType());
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(intent);
+        IntentUtils.startExternalActivity(context, intent);
     }
 
     public static void start(@NonNull Context context, @NonNull Album album) {
@@ -62,7 +63,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         // TODO Should the mime type be MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE?
         intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Albums.CONTENT_TYPE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(intent);
+        IntentUtils.startExternalActivity(context, intent);
     }
 
     public static void start(@NonNull Context context, @NonNull Artist artist) {
@@ -73,7 +74,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         // TODO Should the mime type be MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE?
         intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Artists.CONTENT_TYPE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(intent);
+        IntentUtils.startExternalActivity(context, intent);
     }
 
     public static void start(@NonNull Context context, @NonNull Genre genre) {
@@ -84,7 +85,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         // TODO Should the mime type be MediaStore.Audio.Genres.ENTRY_CONTENT_TYPE?
         intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Genres.CONTENT_TYPE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(intent);
+        IntentUtils.startExternalActivity(context, intent);
     }
 
     public static void start(@NonNull Context context, @NonNull Playlist playlist) {
@@ -95,7 +96,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         // TODO Should the mime type be MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE?
         intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Playlists.CONTENT_TYPE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(intent);
+        IntentUtils.startExternalActivity(context, intent);
     }
 
     public static void start(@NonNull Context context, @NonNull Playlist playlist, int position) {
@@ -108,7 +109,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
         // TODO Should the mime type be MediaStore.Audio.Playlists.CONTENT_TYPE?
         intent.setDataAndTypeAndNormalize(uri, MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(intent);
+        IntentUtils.startExternalActivity(context, intent);
     }
 
     @Override
