@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 
 import androidx.annotation.AnyThread;
@@ -37,6 +38,16 @@ import java.util.Collection;
 @WorkerThread
 class VideoStore extends ContentObserver {
     private static final String TAG = Clog.tag(VideoStore.class);
+
+    // TODO Replace the following with MediaStore.Video.Media.RELATIVE_PATH throughout the code.
+    private static final String RELATIVE_PATH = "relative_path";
+
+    // TODO Replace with Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q throughout the code.
+    private static boolean isRunningQ() {
+        return Build.VERSION.SDK_INT > Build.VERSION_CODES.P
+                || (Build.VERSION.SDK_INT == Build.VERSION_CODES.P
+                && Build.VERSION.PREVIEW_SDK_INT > 0);
+    }
 
     private final ContentResolver mContentResolver;
     private final ChangeListener mChangeListener;
@@ -89,25 +100,57 @@ class VideoStore extends ContentObserver {
 
         {
             Uri contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-            String[] projection = {
-                MediaStore.Video.Media._ID,
-                MediaStore.Video.Media.DATA,
-                MediaStore.Video.Media.MIME_TYPE
-            };
+            String[] projection;
+            if (isRunningQ()) {
+                projection = new String[] {
+                    MediaStore.Video.Media._ID,
+                    MediaStore.Video.Media.MIME_TYPE,
+                    RELATIVE_PATH,
+                    MediaStore.Video.Media.DISPLAY_NAME
+                };
+            } else {
+                projection = new String[] {
+                    MediaStore.Video.Media._ID,
+                    MediaStore.Video.Media.MIME_TYPE,
+                    MediaStore.Video.Media.DATA
+                };
+            }
             String sortOrder = MediaStore.Video.Media._ID;
             Cursor cursor = mContentResolver.query(contentUri, projection, null, null, sortOrder);
             if (cursor != null) {
                 try {
                     int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
-                    int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-                    int mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.MIME_TYPE);
+                    int dataColumn;
+                    int relativePathColumn;
+                    int displayNameColumn;
+                    int mimeTypeColumn = cursor.getColumnIndexOrThrow(
+                            MediaStore.Video.Media.MIME_TYPE);
+
+                    if (isRunningQ()) {
+                        dataColumn = -1;
+                        relativePathColumn = cursor.getColumnIndexOrThrow(RELATIVE_PATH);
+                        displayNameColumn = cursor.getColumnIndexOrThrow(
+                                MediaStore.Video.Media.DISPLAY_NAME);
+                    } else {
+                        dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+                        relativePathColumn = -1;
+                        displayNameColumn = -1;
+                    }
 
                     for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                         long id = cursor.getLong(idColumn);
-                        String data = cursor.getString(dataColumn);
                         String mimeType = cursor.getString(mimeTypeColumn);
 
-                        Uri uri = Uri.fromFile(new File(data));
+                        File file;
+                        if (isRunningQ()) {
+                            String relativePath = cursor.getString(relativePathColumn);
+                            String displayName = cursor.getString(displayNameColumn);
+                            file = new File(relativePath, displayName);
+                        } else {
+                            String data = cursor.getString(dataColumn);
+                            file = new File(data);
+                        }
+                        Uri uri = Uri.fromFile(file);
                         Query query = Query.parse(uri);
                         if (query.isMovie()) {
                             Movie movie;
