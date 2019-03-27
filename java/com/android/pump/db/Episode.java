@@ -34,9 +34,9 @@ public class Episode extends Video {
     private String mDescription;
     private boolean mLoaded;
 
-    Episode(long id, @NonNull Uri uri, @NonNull String mimeType, @NonNull Series series,
+    Episode(long id, @NonNull String mimeType, @NonNull Series series,
             int season, int episode) {
-        super(id, uri, mimeType);
+        super(id, mimeType);
 
         mSeries = series;
         if (season <= 0 || episode <= 0) {

@@ -141,7 +141,6 @@ class AudioStore extends ContentObserver {
             Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             String[] projection = {
                 MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.MIME_TYPE,
                 MediaStore.Audio.Media.ARTIST_ID,
                 MediaStore.Audio.Media.ALBUM_ID
@@ -152,18 +151,15 @@ class AudioStore extends ContentObserver {
             if (cursor != null) {
                 try {
                     int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
-                    int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
                     int mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE);
                     int artistIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID);
                     int albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
 
                     for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                         long id = cursor.getLong(idColumn);
-                        String data = cursor.getString(dataColumn);
                         String mimeType = cursor.getString(mimeTypeColumn);
 
-                        Uri uri = Uri.fromFile(new File(data));
-                        Audio audio = new Audio(id, uri, mimeType);
+                        Audio audio = new Audio(id, mimeType);
                         audios.add(audio);
 
                         if (!cursor.isNull(artistIdColumn)) {

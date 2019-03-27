@@ -150,14 +150,13 @@ class VideoStore extends ContentObserver {
                             String data = cursor.getString(dataColumn);
                             file = new File(data);
                         }
-                        Uri uri = Uri.fromFile(file);
-                        Query query = Query.parse(uri);
+                        Query query = Query.parse(Uri.fromFile(file));
                         if (query.isMovie()) {
                             Movie movie;
                             if (query.hasYear()) {
-                                movie = new Movie(id, uri, mimeType, query.getName(), query.getYear());
+                                movie = new Movie(id, mimeType, query.getName(), query.getYear());
                             } else {
-                                movie = new Movie(id, uri, mimeType, query.getName());
+                                movie = new Movie(id, mimeType, query.getName());
                             }
                             movies.add(movie);
                         } else if (query.isEpisode()) {
@@ -179,13 +178,13 @@ class VideoStore extends ContentObserver {
                                 series.add(serie);
                             }
 
-                            Episode episode = new Episode(id, uri, mimeType, serie,
+                            Episode episode = new Episode(id, mimeType, serie,
                                     query.getSeason(), query.getEpisode());
                             episodes.add(episode);
 
                             serie.addEpisode(episode);
                         } else {
-                            Other other = new Other(id, uri, mimeType, query.getName());
+                            Other other = new Other(id, mimeType, query.getName());
                             others.add(other);
                         }
                     }
