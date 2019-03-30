@@ -34,15 +34,15 @@ public class Movie extends Video {
     private String mDescription;
     private boolean mLoaded;
 
-    Movie(long id, @NonNull Uri uri, @NonNull String mimeType, @NonNull String title) {
-        super(id, uri, mimeType);
+    Movie(long id, @NonNull String mimeType, @NonNull String title) {
+        super(id, mimeType);
 
         mTitle = title;
         mYear = Integer.MIN_VALUE;
     }
 
-    Movie(long id, @NonNull Uri uri, @NonNull String mimeType, @NonNull String title, int year) {
-        super(id, uri, mimeType);
+    Movie(long id, @NonNull String mimeType, @NonNull String title, int year) {
+        super(id, mimeType);
 
         mTitle = title;
         if (year <= 0) {
