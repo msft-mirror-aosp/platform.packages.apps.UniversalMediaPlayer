@@ -16,8 +16,6 @@
 
 package com.android.pump.db;
 
-import android.net.Uri;
-
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +23,6 @@ import androidx.annotation.Nullable;
 @AnyThread
 public class Audio {
     private final long mId;
-    private final Uri mUri;
     private final String mMimeType;
 
     // TODO(b/123706949) Lock mutable fields to ensure consistent updates
@@ -34,9 +31,8 @@ public class Audio {
     private Album mAlbum;
     private boolean mLoaded;
 
-    Audio(long id, @NonNull Uri uri, @NonNull String mimeType) {
+    Audio(long id, @NonNull String mimeType) {
         mId = id;
-        mUri = uri;
         mMimeType = mimeType;
     }
 
@@ -44,19 +40,12 @@ public class Audio {
         return mId;
     }
 
-    public @NonNull Uri getUri() {
-        return mUri;
-    }
-
     public @NonNull String getMimeType() {
         return mMimeType;
     }
 
-    public @NonNull String getTitle() {
-        if (mTitle != null) {
-            return mTitle;
-        }
-        return mUri.getLastPathSegment();
+    public @Nullable String getTitle() {
+        return mTitle;
     }
 
     public @Nullable Artist getArtist() {

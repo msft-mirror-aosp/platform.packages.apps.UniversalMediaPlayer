@@ -33,8 +33,8 @@ public class Other extends Video {
     private Uri mThumbnailUri;
     private boolean mLoaded;
 
-    Other(long id, @NonNull Uri uri, @NonNull String mimeType, @NonNull String title) {
-        super(id, uri, mimeType);
+    Other(long id, @NonNull String mimeType, @NonNull String title) {
+        super(id, mimeType);
 
         mTitle = title;
         mDuration = Long.MIN_VALUE;

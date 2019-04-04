@@ -141,7 +141,6 @@ class AudioStore extends ContentObserver {
             Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
             String[] projection = {
                 MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.MIME_TYPE,
                 MediaStore.Audio.Media.ARTIST_ID,
                 MediaStore.Audio.Media.ALBUM_ID
@@ -152,18 +151,15 @@ class AudioStore extends ContentObserver {
             if (cursor != null) {
                 try {
                     int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
-                    int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
                     int mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE);
                     int artistIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID);
                     int albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
 
                     for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                         long id = cursor.getLong(idColumn);
-                        String data = cursor.getString(dataColumn);
                         String mimeType = cursor.getString(mimeTypeColumn);
 
-                        Uri uri = Uri.fromFile(new File(data));
-                        Audio audio = new Audio(id, uri, mimeType);
+                        Audio audio = new Audio(id, mimeType);
                         audios.add(audio);
 
                         if (!cursor.isNull(artistIdColumn)) {
@@ -423,14 +419,20 @@ class AudioStore extends ContentObserver {
 
         // TODO Remove hardcoded value
         Uri contentUri = MediaStore.Audio.Artists.Albums.getContentUri("external", artist.getId());
-        String[] projection = {
-            MediaStore.Audio.Media._ID // TODO MediaStore.Audio.Artists.Albums.ALBUM_ID
-        };
+        /*
+         * On some devices MediaStore doesn't use ALBUM_ID as key from Artist to Album, but rather
+         * _ID. In order to support these devices we don't pass a projection, to avoid the
+         * IllegalArgumentException(Invalid column) exception, and then resort to _ID.
+         */
+        String[] projection = null; // { MediaStore.Audio.Artists.Albums.ALBUM_ID };
         Cursor cursor = mContentResolver.query(contentUri, projection, null, null, null);
         if (cursor != null) {
             try {
-                int albumIdColumn = cursor.getColumnIndexOrThrow(
-                        MediaStore.Audio.Media._ID); // TODO MediaStore.Audio.Artists.Albums.ALBUM_ID
+                int albumIdColumn = cursor.getColumnIndex(MediaStore.Audio.Artists.Albums.ALBUM_ID);
+                if (albumIdColumn < 0) {
+                    // On some devices the ALBUM_ID column doesn't exist and _ID is used instead.
+                    albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+                }
 
                 for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                     long albumId = cursor.getLong(albumIdColumn);
