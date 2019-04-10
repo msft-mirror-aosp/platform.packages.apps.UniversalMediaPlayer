@@ -137,7 +137,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
             finish();
             return;
         }
-        UriMediaItem mediaItem = new UriMediaItem.Builder(this, uri).build();
+        UriMediaItem mediaItem = new UriMediaItem.Builder(uri).build();
         mVideoView.setMediaItem(mediaItem);
     }
 }
