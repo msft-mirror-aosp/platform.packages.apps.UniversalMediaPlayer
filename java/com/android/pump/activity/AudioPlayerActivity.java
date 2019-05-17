@@ -27,7 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.media2.UriMediaItem;
+import androidx.media2.common.UriMediaItem;
 import androidx.media2.widget.VideoView;
 
 import com.android.pump.R;
