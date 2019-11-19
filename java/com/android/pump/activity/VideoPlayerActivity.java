@@ -27,11 +27,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.media2.MediaController;
-import androidx.media2.MediaItem;
-import androidx.media2.SessionPlayer;
-import androidx.media2.SessionToken;
-import androidx.media2.UriMediaItem;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.UriMediaItem;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.SessionToken;
 import androidx.media2.widget.VideoView;
 
 import com.android.pump.R;
@@ -86,8 +86,10 @@ public class VideoPlayerActivity extends AppCompatActivity {
     public void onAttachedToWindow() {
         if (mMediaController == null) {
             SessionToken token = mVideoView.getSessionToken();
-            mMediaController = new MediaController(this, token, Executors.uiThreadExecutor(),
-                    new ControllerCallback());
+            mMediaController = new MediaController.Builder(this)
+                    .setSessionToken(token)
+                    .setControllerCallback(Executors.uiThreadExecutor(), new ControllerCallback())
+                    .build();
         }
     }
 
