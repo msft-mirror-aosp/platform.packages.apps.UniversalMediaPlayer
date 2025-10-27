@@ -35,5 +35,8 @@ android_app {
     optimize: {
         // TODO(b/123703963) Re-enable. Currently disabled due to issues with media2-exoplayer
         enabled: false
-    }
+    },
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
